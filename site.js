@@ -1,5 +1,7 @@
 'use strict';
 
+document.documentElement.classList.add('js');
+
 const navigation = document.getElementById('navigation');
 const menuToggle = document.querySelector('.menu-toggle');
 const mobileViewport = window.matchMedia('(max-width: 760px)');
@@ -35,7 +37,7 @@ if (typeof dialog.showModal === 'function') {
         link.setAttribute('aria-controls', 'joinModal');
         link.addEventListener('click', event => {
             event.preventDefault();
-            opener = mobileViewport.matches && navigation.contains(link) ? menuToggle : link;
+            opener = link;
             closeMenu();
             dialog.showModal();
             dialog.scrollTop = 0;
@@ -56,7 +58,10 @@ if (typeof dialog.showModal === 'function') {
     });
     dialog.addEventListener('close', () => {
         document.body.classList.remove('modal-open');
-        if (opener && opener.isConnected) opener.focus({ preventScroll: true });
+        if (opener && opener.isConnected) {
+            const focusTarget = opener.getClientRects().length ? opener : menuToggle;
+            focusTarget.focus({ preventScroll: true });
+        }
     });
 }
 
