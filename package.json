@@ -1,0 +1,11 @@
+{
+  "name": "yesunikom-site",
+  "private": true,
+  "scripts": {
+    "build": "node -e \"require('node:fs').copyFileSync('input.css','style.css')\"",
+    "test": "node tests/site.cjs"
+  },
+  "devDependencies": {
+    "playwright": "^1.65.1"
+  }
+}
