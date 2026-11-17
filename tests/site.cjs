@@ -25,6 +25,11 @@ const server = http.createServer((req, res) => {
         const errors = [];
         const resized = await browser.newPage({ viewport:{width:1024,height:768}, reducedMotion:'reduce' });
         await resized.goto(base);
+        for (const year of ['2007','2012']) {
+            assert.equal(await resized.locator('main').evaluate((el, value) => el.textContent.split(value).length - 1, year), 1, `${year} appears only once in main content`);
+            assert((await resized.locator('.history').textContent()).includes(year), `${year} remains in the history`);
+        }
+        assert((await resized.locator('.history').textContent()).includes('4 September'), 'History preserves the founding date');
         for (const scenario of [
             { from:{width:1024,height:768}, to:{width:390,height:844}, trigger:'.navigation .join-trigger', focus:'.menu-toggle' },
             { from:{width:390,height:844}, to:{width:1024,height:768}, trigger:'.navigation .join-trigger', focus:'.navigation .join-trigger' },
