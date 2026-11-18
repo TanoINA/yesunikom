@@ -25,6 +25,20 @@ const server = http.createServer((req, res) => {
         const errors = [];
         const resized = await browser.newPage({ viewport:{width:1024,height:768}, reducedMotion:'reduce' });
         await resized.goto(base);
+        assert.equal(await resized.locator('#dokumentasi .documentation-status').textContent(), 'Sedang disiapkan', 'Documentation is clearly marked as not yet available');
+        assert.equal(await resized.locator('#dokumentasi img').count(), 0, 'No placeholder photographs presented as real activities');
+        const shareImage = await resized.locator('meta[property="og:image"]').getAttribute('content');
+        assert.equal(shareImage, 'https://tanoina.github.io/yesunikom/share-yes.png', 'Share image uses the public absolute URL');
+        assert.equal(await resized.locator('meta[property="og:image:width"]').getAttribute('content'), '1200');
+        assert.equal(await resized.locator('meta[property="og:image:height"]').getAttribute('content'), '630');
+        assert.equal(await resized.locator('link[rel="canonical"]').getAttribute('href'), 'https://tanoina.github.io/yesunikom/');
+        const imageResponse = await resized.request.get(`${base}/share-yes.png`);
+        assert.equal(imageResponse.status(), 200, 'Share image can be served');
+        assert.match(imageResponse.headers()['content-type'], /^image\/png/);
+        assert.match(fs.readFileSync(path.join(root, '.github/workflows/pages.yml'), 'utf8'), /\bshare-yes\.png\b/, 'Share image is included in the Pages artifact');
+        const imageBuffer = await imageResponse.body();
+        assert.equal(imageBuffer.readUInt32BE(16), 1200, 'Share PNG width');
+        assert.equal(imageBuffer.readUInt32BE(20), 630, 'Share PNG height');
         for (const year of ['2007','2012']) {
             assert.equal(await resized.locator('main').evaluate((el, value) => el.textContent.split(value).length - 1, year), 1, `${year} appears only once in main content`);
             assert((await resized.locator('.history').textContent()).includes(year), `${year} remains in the history`);
@@ -136,6 +150,14 @@ const server = http.createServer((req, res) => {
             const nojs = await browser.newPage({ javaScriptEnabled:false, viewport:{width,height:844}, reducedMotion:'reduce' });
             await nojs.goto(base);
             assert(await nojs.locator('.navigation').isVisible(), 'Navigation visible without JS');
+            assert(await nojs.locator('.documentation-status').isVisible(), 'Documentation status is visible');
+            const question = nojs.locator('.faq-list details').first();
+            const answer = question.locator('p');
+            assert.equal(await answer.isVisible(), false, 'FAQ answers start collapsed');
+            await question.locator('summary').press('Enter');
+            assert(await answer.isVisible(), 'FAQ opens with keyboard without JS');
+            await question.locator('summary').press('Space');
+            assert.equal(await answer.isVisible(), false, 'FAQ closes with keyboard');
             await nojs.locator('.navigation .join-trigger').click();
             assert(new URL(nojs.url()).hash === '#pendaftaran', 'Registration fallback accessible');
             await nojs.waitForFunction(() => window.scrollY > 0);
