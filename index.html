@@ -42,6 +42,23 @@
 
     <main id="main">
         <section id="beranda" class="hero" aria-labelledby="hero-title">
+            <div class="hero-clouds" aria-hidden="true">
+                <svg class="hero-cloud cloud-upper-left" viewBox="0 0 480 200" focusable="false">
+                    <defs>
+                        <g id="hero-cloud-shape">
+                            <rect x="48" y="105" width="370" height="80" rx="40"/>
+                            <ellipse cx="110" cy="118" rx="70" ry="58"/>
+                            <ellipse cx="215" cy="90" rx="86" ry="78"/>
+                            <ellipse cx="325" cy="112" rx="78" ry="65"/>
+                            <ellipse cx="405" cy="139" rx="46" ry="43"/>
+                        </g>
+                    </defs>
+                    <use href="#hero-cloud-shape"/>
+                </svg>
+                <svg class="hero-cloud cloud-upper-right" viewBox="0 0 480 200" focusable="false"><use href="#hero-cloud-shape"/></svg>
+                <svg class="hero-cloud cloud-lower-left" viewBox="0 0 480 200" focusable="false"><use href="#hero-cloud-shape"/></svg>
+                <svg class="hero-cloud cloud-lower-right" viewBox="0 0 480 200" focusable="false"><use href="#hero-cloud-shape"/></svg>
+            </div>
             <div class="container hero-grid">
                 <div class="hero-copy">
                     <p class="hero-context">Bahasa Inggris, di luar ruang kuliah.</p>

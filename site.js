@@ -2,6 +2,39 @@
 
 document.documentElement.classList.add('js');
 
+const hero = document.querySelector('.hero');
+const cloudLayer = document.querySelector('.hero-clouds');
+if (hero && cloudLayer) {
+    const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+    let frame = 0;
+    const updateClouds = () => {
+        frame = 0;
+        const bounds = hero.getBoundingClientRect();
+        const progress = Math.min(1, Math.max(0, -bounds.top / bounds.height));
+        cloudLayer.style.setProperty('--cloud-shift', `${reducedMotion.matches ? 0 : Math.round(progress * 80)}px`);
+    };
+    const scheduleClouds = () => {
+        if (!frame) frame = requestAnimationFrame(updateClouds);
+    };
+    const observer = new IntersectionObserver(entries => {
+        window.removeEventListener('scroll', scheduleClouds);
+        if (entries[0].isIntersecting && !reducedMotion.matches) {
+            window.addEventListener('scroll', scheduleClouds, { passive: true });
+            scheduleClouds();
+        }
+    });
+    const syncClouds = () => {
+        observer.unobserve(hero);
+        observer.observe(hero);
+        window.removeEventListener('scroll', scheduleClouds);
+        if (frame) cancelAnimationFrame(frame);
+        updateClouds();
+    };
+    window.addEventListener('resize', scheduleClouds, { passive: true });
+    reducedMotion.addEventListener('change', syncClouds);
+    syncClouds();
+}
+
 const navigation = document.getElementById('navigation');
 const menuToggle = document.querySelector('.menu-toggle');
 const mobileViewport = window.matchMedia('(max-width: 760px)');

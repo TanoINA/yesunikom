@@ -46,6 +46,30 @@ const server = http.createServer((req, res) => {
         }
         await resized.close();
         console.log('PASS focus restoration across desktop/mobile resize');
+        for (const width of [1440,390]) {
+            const clouds = await browser.newPage({ viewport:{width,height:844}, reducedMotion:'no-preference' });
+            clouds.on('pageerror', error => errors.push(error.message));
+            await clouds.goto(base);
+            assert.equal(await clouds.locator('.hero-clouds').count(), 1, 'Hero contains a cloud background');
+            assert.equal(await clouds.locator('.hero-clouds').getAttribute('aria-hidden'), 'true', 'Clouds are decorative');
+            assert.equal(await clouds.locator('.hero-clouds').evaluate(el => getComputedStyle(el).pointerEvents), 'none', 'Clouds do not intercept clicks');
+            assert.equal(await clouds.locator('.hero-cloud:visible').count(), width <= 760 ? 2 : 4, 'Fewer clouds on mobile');
+            await clouds.evaluate(() => document.fonts.ready);
+            await clouds.evaluate(() => window.scrollTo({top:0,behavior:'instant'}));
+            await clouds.waitForFunction(() => document.querySelector('.hero-clouds').style.getPropertyValue('--cloud-shift') === '0px');
+            await clouds.evaluate(() => window.scrollTo({top:250,behavior:'instant'}));
+            await clouds.waitForFunction(() => parseFloat(document.querySelector('.hero-clouds').style.getPropertyValue('--cloud-shift')) > 0);
+            const shift = await clouds.locator('.hero-clouds').getAttribute('style');
+            await clouds.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+            assert.equal(await clouds.locator('.hero-clouds').getAttribute('style'), shift, 'Clouds stay still without scrolling');
+            await clouds.emulateMedia({reducedMotion:'reduce'});
+            await clouds.waitForFunction(() => document.querySelector('.hero-clouds').style.getPropertyValue('--cloud-shift') === '0px');
+            await clouds.evaluate(() => window.scrollTo({top:350,behavior:'instant'}));
+            await clouds.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
+            assert.equal(await clouds.locator('.hero-cloud').first().evaluate(el => getComputedStyle(el).transform), 'none', 'Reduced motion keeps clouds static');
+            await clouds.close();
+        }
+        console.log('PASS decorative clouds, responsive count, scroll motion and live reduced-motion preference');
         for (const viewport of [{width:1440,height:1000},{width:1024,height:768},{width:768,height:1024},{width:390,height:844},{width:320,height:568},{width:844,height:390}]) {
             const context = await browser.newContext({ viewport });
             const page = await context.newPage();
