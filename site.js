@@ -4,35 +4,60 @@ document.documentElement.classList.add('js');
 
 const hero = document.querySelector('.hero');
 const cloudLayer = document.querySelector('.hero-clouds');
-if (hero && cloudLayer) {
+if (hero && cloudLayer && 'IntersectionObserver' in window) {
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
     let frame = 0;
-    const updateClouds = () => {
-        frame = 0;
-        const bounds = hero.getBoundingClientRect();
-        const progress = Math.min(1, Math.max(0, -bounds.top / bounds.height));
-        cloudLayer.style.setProperty('--cloud-shift', `${reducedMotion.matches ? 0 : Math.round(progress * 80)}px`);
+    let current = 0;
+    let target = 0;
+    let visible = false;
+    let lastTime = 0;
+    const paintClouds = () => {
+        cloudLayer.style.setProperty('--cloud-shift', current.toFixed(2) + 'px');
+        cloudLayer.style.setProperty('--cloud-scale', (current / 280).toFixed(4));
     };
-    const scheduleClouds = () => {
-        if (!frame) frame = requestAnimationFrame(updateClouds);
+    const stopClouds = () => {
+        if (frame) cancelAnimationFrame(frame);
+        frame = 0;
+        lastTime = 0;
+    };
+    const animateClouds = time => {
+        const elapsed = lastTime ? Math.min(time - lastTime, 64) : 16;
+        lastTime = time;
+        current += (target - current) * (1 - Math.exp(-elapsed / 100));
+        if (Math.abs(target - current) < .1) {
+            current = target;
+            frame = 0;
+            lastTime = 0;
+        } else {
+            frame = requestAnimationFrame(animateClouds);
+        }
+        paintClouds();
+    };
+    const updateTarget = () => {
+        const bounds = hero.getBoundingClientRect();
+        target = Math.min(1, Math.max(0, -bounds.top / bounds.height)) * 280;
+        if (!frame && Math.abs(target - current) >= .1) frame = requestAnimationFrame(animateClouds);
+    };
+    const syncClouds = () => {
+        window.removeEventListener('scroll', updateTarget);
+        window.removeEventListener('resize', updateTarget);
+        stopClouds();
+        if (reducedMotion.matches) {
+            current = target = 0;
+            paintClouds();
+        } else if (visible) {
+            window.addEventListener('scroll', updateTarget, { passive: true });
+            window.addEventListener('resize', updateTarget, { passive: true });
+            updateTarget();
+        }
     };
     const observer = new IntersectionObserver(entries => {
-        window.removeEventListener('scroll', scheduleClouds);
-        if (entries[0].isIntersecting && !reducedMotion.matches) {
-            window.addEventListener('scroll', scheduleClouds, { passive: true });
-            scheduleClouds();
-        }
+        visible = entries[0].isIntersecting;
+        syncClouds();
     });
-    const syncClouds = () => {
-        observer.unobserve(hero);
-        observer.observe(hero);
-        window.removeEventListener('scroll', scheduleClouds);
-        if (frame) cancelAnimationFrame(frame);
-        updateClouds();
-    };
-    window.addEventListener('resize', scheduleClouds, { passive: true });
     reducedMotion.addEventListener('change', syncClouds);
-    syncClouds();
+    paintClouds();
+    observer.observe(hero);
 }
 
 const navigation = document.getElementById('navigation');

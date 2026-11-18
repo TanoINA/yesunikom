@@ -43,21 +43,40 @@
     <main id="main">
         <section id="beranda" class="hero" aria-labelledby="hero-title">
             <div class="hero-clouds" aria-hidden="true">
-                <svg class="hero-cloud cloud-upper-left" viewBox="0 0 480 200" focusable="false">
+                <svg class="cloud-definitions" width="0" height="0" focusable="false">
                     <defs>
-                        <g id="hero-cloud-shape">
-                            <rect x="48" y="105" width="370" height="80" rx="40"/>
-                            <ellipse cx="110" cy="118" rx="70" ry="58"/>
-                            <ellipse cx="215" cy="90" rx="86" ry="78"/>
-                            <ellipse cx="325" cy="112" rx="78" ry="65"/>
-                            <ellipse cx="405" cy="139" rx="46" ry="43"/>
+                        <radialGradient id="cloud-body" cx="60%" cy="25%" r="75%">
+                            <stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="#edf6ff"/>
+                            <stop offset=".8" stop-color="#b8d2ee"/><stop offset="1" stop-color="#88b1dc" stop-opacity="0"/>
+                        </radialGradient>
+                        <radialGradient id="cloud-highlight" cx="65%" cy="20%" r="75%">
+                            <stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#f1f8ff" stop-opacity="0"/>
+                        </radialGradient>
+                        <radialGradient id="cloud-shadow">
+                            <stop offset="0" stop-color="#789ec9" stop-opacity=".5"/><stop offset="1" stop-color="#accbe9" stop-opacity="0"/>
+                        </radialGradient>
+                        <filter id="cloud-texture" x="-25%" y="-30%" width="150%" height="160%" color-interpolation-filters="sRGB">
+                            <feTurbulence type="fractalNoise" baseFrequency=".018 .027" numOctaves="2" seed="23" result="noise"/>
+                            <feDisplacementMap in="SourceGraphic" in2="noise" scale="24" xChannelSelector="R" yChannelSelector="G"/>
+                            <feGaussianBlur stdDeviation="4"/>
+                        </filter>
+                        <g id="hero-cloud-shape" filter="url(#cloud-texture)">
+                            <ellipse cx="245" cy="194" rx="177" ry="59" fill="url(#cloud-body)"/>
+                            <ellipse cx="113" cy="182" rx="77" ry="62" fill="url(#cloud-body)"/>
+                            <ellipse cx="371" cy="185" rx="80" ry="66" fill="url(#cloud-body)"/>
+                            <ellipse cx="244" cy="120" rx="91" ry="96" fill="url(#cloud-body)"/>
+                            <ellipse cx="158" cy="145" rx="78" ry="76" fill="url(#cloud-body)"/>
+                            <ellipse cx="324" cy="143" rx="84" ry="79" fill="url(#cloud-body)"/>
+                            <ellipse cx="237" cy="212" rx="167" ry="43" fill="url(#cloud-shadow)"/>
+                            <ellipse cx="264" cy="82" rx="64" ry="55" fill="url(#cloud-highlight)"/>
+                            <ellipse cx="341" cy="122" rx="62" ry="51" fill="url(#cloud-highlight)"/>
                         </g>
                     </defs>
-                    <use href="#hero-cloud-shape"/>
                 </svg>
-                <svg class="hero-cloud cloud-upper-right" viewBox="0 0 480 200" focusable="false"><use href="#hero-cloud-shape"/></svg>
-                <svg class="hero-cloud cloud-lower-left" viewBox="0 0 480 200" focusable="false"><use href="#hero-cloud-shape"/></svg>
-                <svg class="hero-cloud cloud-lower-right" viewBox="0 0 480 200" focusable="false"><use href="#hero-cloud-shape"/></svg>
+                <svg class="hero-cloud cloud-upper-left" viewBox="0 0 480 290" focusable="false"><use href="#hero-cloud-shape"/></svg>
+                <svg class="hero-cloud cloud-upper-right" viewBox="0 0 480 290" focusable="false"><use href="#hero-cloud-shape"/></svg>
+                <svg class="hero-cloud cloud-lower-left" viewBox="0 0 480 290" focusable="false"><use href="#hero-cloud-shape"/></svg>
+                <svg class="hero-cloud cloud-lower-right" viewBox="0 0 480 290" focusable="false"><use href="#hero-cloud-shape"/></svg>
             </div>
             <div class="container hero-grid">
                 <div class="hero-copy">

@@ -56,14 +56,21 @@ const server = http.createServer((req, res) => {
             assert.equal(await clouds.locator('.hero-cloud:visible').count(), width <= 760 ? 2 : 4, 'Fewer clouds on mobile');
             await clouds.evaluate(() => document.fonts.ready);
             await clouds.evaluate(() => window.scrollTo({top:0,behavior:'instant'}));
-            await clouds.waitForFunction(() => document.querySelector('.hero-clouds').style.getPropertyValue('--cloud-shift') === '0px');
+            await clouds.waitForFunction(() => document.querySelector('.hero-clouds').style.getPropertyValue('--cloud-shift') === '0.00px');
             await clouds.evaluate(() => window.scrollTo({top:250,behavior:'instant'}));
             await clouds.waitForFunction(() => parseFloat(document.querySelector('.hero-clouds').style.getPropertyValue('--cloud-shift')) > 0);
+            await clouds.waitForFunction(() => {
+                const bounds = document.querySelector('.hero').getBoundingClientRect();
+                const target = (Math.min(1, Math.max(0, -bounds.top / bounds.height)) * 280).toFixed(2) + 'px';
+                return document.querySelector('.hero-clouds').style.getPropertyValue('--cloud-shift') === target;
+            });
             const shift = await clouds.locator('.hero-clouds').getAttribute('style');
+            const depthTransforms = await clouds.locator('.hero-cloud:visible').evaluateAll(els => els.map(el => getComputedStyle(el).transform));
+            assert.equal(new Set(depthTransforms).size, depthTransforms.length, 'Cloud layers move at different speeds and scales');
             await clouds.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-            assert.equal(await clouds.locator('.hero-clouds').getAttribute('style'), shift, 'Clouds stay still without scrolling');
+            assert.equal(await clouds.locator('.hero-clouds').getAttribute('style'), shift, 'Clouds stop after easing settles');
             await clouds.emulateMedia({reducedMotion:'reduce'});
-            await clouds.waitForFunction(() => document.querySelector('.hero-clouds').style.getPropertyValue('--cloud-shift') === '0px');
+            await clouds.waitForFunction(() => document.querySelector('.hero-clouds').style.getPropertyValue('--cloud-shift') === '0.00px');
             await clouds.evaluate(() => window.scrollTo({top:350,behavior:'instant'}));
             await clouds.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
             assert.equal(await clouds.locator('.hero-cloud').first().evaluate(el => getComputedStyle(el).transform), 'none', 'Reduced motion keeps clouds static');
