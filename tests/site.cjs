@@ -91,6 +91,31 @@ const server = http.createServer((req, res) => {
             await clouds.close();
         }
         console.log('PASS decorative clouds, responsive count, scroll motion and live reduced-motion preference');
+        for (const width of [1440,390]) {
+            const page = await browser.newPage({ viewport:{width,height:844}, reducedMotion:'no-preference', javaScriptEnabled:false });
+            await page.goto(base);
+            const history = page.locator('.history');
+            await page.evaluate(() => document.fonts.ready);
+            assert.equal(await history.locator('dt:visible').count(), 2, 'Both dates are visible before the line fills');
+            for (const progress of [0,.5,1,.5]) {
+                await history.evaluate((el, fraction) => {
+                    const rect = el.getBoundingClientRect();
+                    window.scrollTo({ top:scrollY + rect.top - innerHeight + fraction * rect.height, behavior:'instant' });
+                }, progress);
+                await page.screenshot(); // Flush a rendered frame with page scripts disabled.
+                const style = await history.locator('div').first().evaluate(el => {
+                    const line = getComputedStyle(el, '::before');
+                    return { animation:line.animationName, size:line.backgroundSize };
+                });
+                assert.equal(style.animation, 'history-fill');
+                const fill = parseFloat(style.size.split(' ')[width <= 760 ? 0 : 1]);
+                assert(Math.abs(fill - progress * 100) < 3, `Timeline at ${width}px: expected ${progress * 100}%, got ${fill}%`);
+            }
+            await page.emulateMedia({reducedMotion:'reduce'});
+            assert.equal(await history.locator('div').first().evaluate(el => getComputedStyle(el, '::before').backgroundSize), '100% 100%', 'Reduced motion shows the full line');
+            await page.close();
+        }
+        console.log('PASS responsive history line follows scroll without JavaScript and respects reduced motion');
         for (const viewport of [{width:1440,height:1000},{width:1024,height:768},{width:768,height:1024},{width:390,height:844},{width:320,height:568},{width:844,height:390}]) {
             const context = await browser.newContext({ viewport });
             const page = await context.newPage();
