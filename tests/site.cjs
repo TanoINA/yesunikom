@@ -44,6 +44,15 @@ const server = http.createServer((req, res) => {
             assert((await resized.locator('.history').textContent()).includes(year), `${year} remains in the history`);
         }
         assert((await resized.locator('.history').textContent()).includes('4 September'), 'History preserves the founding date');
+        assert.match(await resized.locator('#tentang').innerText(), /Sanctuary/, 'About section includes the current vision');
+        assert.deepEqual(await resized.locator('.focus-list h3').allTextContents(), ['English Skills', 'Communication', 'Leadership']);
+        assert.deepEqual(await resized.locator('#kegiatan .schedule-row h3').allTextContents(), [
+            'Forum Group Discussion (FGD)', 'Public Speaking Class', 'Debate Class', 'TOEFL Preparation Class'
+        ]);
+        assert.deepEqual(await resized.locator('#kegiatan .schedule-day').allTextContents(), [
+            'Kamis15.30–17.30 WIB', 'Jumat15.30–17.30 WIB', 'Berkala', 'Berkala'
+        ]);
+        assert.equal(await resized.locator('#kegiatan .monthly h4').textContent(), 'YES Goes Out');
         for (const scenario of [
             { from:{width:1024,height:768}, to:{width:390,height:844}, trigger:'.navigation .join-trigger', focus:'.menu-toggle' },
             { from:{width:390,height:844}, to:{width:1024,height:768}, trigger:'.navigation .join-trigger', focus:'.navigation .join-trigger' },
