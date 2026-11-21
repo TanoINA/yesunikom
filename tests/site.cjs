@@ -3,209 +3,200 @@ const http = require('node:http');
 const fs = require('node:fs');
 const path = require('node:path');
 const { chromium } = require('playwright');
+
 const root = path.resolve(__dirname, '..');
 const output = path.join(root, 'test-results');
 fs.mkdirSync(output, { recursive: true });
-const mime = { '.html': 'text/html', '.css': 'text/css', '.js': 'text/javascript', '.png': 'image/png' };
+
+const types = {
+    '.html': 'text/html; charset=utf-8',
+    '.css': 'text/css; charset=utf-8',
+    '.js': 'text/javascript; charset=utf-8',
+    '.png': 'image/png',
+    '.webp': 'image/webp'
+};
+
 const server = http.createServer((req, res) => {
-    const name = decodeURIComponent(req.url.split('?')[0]);
-    const file = path.resolve(root, '.' + (name === '/' ? '/index.html' : name));
-    if (!file.startsWith(root + path.sep) || !fs.existsSync(file) || !fs.statSync(file).isFile()) {
-        res.writeHead(404).end(); return;
+    const pathname = decodeURIComponent(new URL(req.url, 'http://localhost').pathname);
+    const target = path.join(root, pathname === '/' ? 'index.html' : pathname);
+    if (!target.startsWith(root) || !fs.existsSync(target) || fs.statSync(target).isDirectory()) {
+        res.writeHead(404);
+        res.end('Not found');
+        return;
     }
-    res.setHeader('Content-Type', mime[path.extname(file)] || 'application/octet-stream');
-    fs.createReadStream(file).pipe(res);
+    res.writeHead(200, { 'Content-Type': types[path.extname(target)] || 'application/octet-stream' });
+    fs.createReadStream(target).pipe(res);
 });
+
+const viewports = [
+    { width: 1440, height: 900 },
+    { width: 1024, height: 768 },
+    { width: 768, height: 1024 },
+    { width: 390, height: 844 },
+    { width: 320, height: 568 }
+];
+
 (async () => {
-    await new Promise(resolve => server.listen(0, '127.0.0.1', resolve));
-    const base = `http://127.0.0.1:${server.address().port}`;
     let browser;
+    const errors = [];
     try {
-        browser = await chromium.launch({ channel: process.env.PLAYWRIGHT_CHANNEL || (process.platform === 'win32' ? 'msedge' : 'chromium'), headless: true });
-        const errors = [];
-        const resized = await browser.newPage({ viewport:{width:1024,height:768}, reducedMotion:'reduce' });
-        await resized.goto(base);
-        assert.equal(await resized.locator('#dokumentasi .documentation-status').textContent(), 'Sedang disiapkan', 'Documentation is clearly marked as not yet available');
-        assert.equal(await resized.locator('#dokumentasi img').count(), 0, 'No placeholder photographs presented as real activities');
-        const shareImage = await resized.locator('meta[property="og:image"]').getAttribute('content');
-        assert.equal(shareImage, 'https://tanoina.github.io/yesunikom/share-yes.png', 'Share image uses the public absolute URL');
-        assert.equal(await resized.locator('meta[property="og:image:width"]').getAttribute('content'), '1200');
-        assert.equal(await resized.locator('meta[property="og:image:height"]').getAttribute('content'), '630');
-        assert.equal(await resized.locator('link[rel="canonical"]').getAttribute('href'), 'https://tanoina.github.io/yesunikom/');
-        const imageResponse = await resized.request.get(`${base}/share-yes.png`);
-        assert.equal(imageResponse.status(), 200, 'Share image can be served');
-        assert.match(imageResponse.headers()['content-type'], /^image\/png/);
-        assert.match(fs.readFileSync(path.join(root, '.github/workflows/pages.yml'), 'utf8'), /\bshare-yes\.png\b/, 'Share image is included in the Pages artifact');
-        const imageBuffer = await imageResponse.body();
-        assert.equal(imageBuffer.readUInt32BE(16), 1200, 'Share PNG width');
-        assert.equal(imageBuffer.readUInt32BE(20), 630, 'Share PNG height');
-        for (const year of ['2007','2012']) {
-            assert.equal(await resized.locator('main').evaluate((el, value) => el.textContent.split(value).length - 1, year), 1, `${year} appears only once in main content`);
-            assert((await resized.locator('.history').textContent()).includes(year), `${year} remains in the history`);
-        }
-        assert((await resized.locator('.history').textContent()).includes('4 September'), 'History preserves the founding date');
-        assert.match(await resized.locator('#tentang').innerText(), /Sanctuary/, 'About section includes the current vision');
-        assert.deepEqual(await resized.locator('.focus-list h3').allTextContents(), ['English Skills', 'Communication', 'Leadership']);
-        assert.deepEqual(await resized.locator('#kegiatan .schedule-row h3').allTextContents(), [
-            'Forum Group Discussion (FGD)', 'Public Speaking Class', 'Debate Class', 'TOEFL Preparation Class'
+        await new Promise((resolve) => server.listen(0, resolve));
+        const base = `http://127.0.0.1:${server.address().port}/`;
+        browser = await chromium.launch();
+
+        const desktop = await browser.newPage({ viewport: { width: 1440, height: 900 } });
+        desktop.on('pageerror', (e) => errors.push(e.message));
+        desktop.on('console', (m) => { if (m.type() === 'error') errors.push(m.text()); });
+        desktop.on('response', (r) => { if (r.status() >= 400) errors.push(`${r.status()} ${r.url()}`); });
+        await desktop.goto(base, { waitUntil: 'domcontentloaded' });
+
+        assert.equal(await desktop.locator('h1').count(), 1, 'One h1 on the page');
+        assert.equal(await desktop.locator('.hero-line').count(), 3, 'Hero statement has three lines');
+        assert.match(await desktop.title(), /Youth English Society/);
+
+        const headings = await desktop.locator('h2').allTextContents();
+        assert.deepEqual(headings, ['Tentang YES', 'Jadwal', 'Dokumentasi', 'Gabung']);
+
+        const sessions = await desktop.locator('.session').evaluateAll((nodes) => nodes.map((n) => ({
+            when: n.querySelector('.when').textContent.trim(),
+            what: n.querySelector('.what').textContent.trim()
+        })));
+        assert.deepEqual(sessions, [
+            { when: 'Kamis, 15.30 sampai 17.30 WIB', what: 'Forum Group Discussion' },
+            { when: 'Jumat, 15.30 sampai 17.30 WIB', what: 'Public Speaking Class' },
+            { when: 'Berkala', what: 'Debate Class' },
+            { when: 'Berkala', what: 'TOEFL Preparation Class' },
+            { when: 'Bulanan', what: 'YES Goes Out' }
         ]);
-        assert.deepEqual(await resized.locator('#kegiatan .schedule-day').allTextContents(), [
-            'Kamis15.30–17.30 WIB', 'Jumat15.30–17.30 WIB', 'Berkala', 'Berkala'
-        ]);
-        assert.equal(await resized.locator('#kegiatan .monthly h4').textContent(), 'YES Goes Out');
-        for (const scenario of [
-            { from:{width:1024,height:768}, to:{width:390,height:844}, trigger:'.navigation .join-trigger', focus:'.menu-toggle' },
-            { from:{width:390,height:844}, to:{width:1024,height:768}, trigger:'.navigation .join-trigger', focus:'.navigation .join-trigger' },
-            { from:{width:1024,height:768}, to:{width:390,height:844}, trigger:'.hero-actions .join-trigger', focus:'.hero-actions .join-trigger' }
-        ]) {
-            await resized.setViewportSize(scenario.from);
-            if (scenario.from.width <= 760) await resized.locator('.menu-toggle').click();
-            await resized.locator(scenario.trigger).click();
-            await resized.setViewportSize(scenario.to);
-            await resized.waitForFunction(() => document.querySelector('.navigation').classList.contains('is-collapsed') === (innerWidth <= 760));
-            await resized.keyboard.press('Escape');
-            await resized.waitForFunction(() => !document.body.classList.contains('modal-open'));
-            assert(await resized.locator(scenario.focus).evaluate(el => document.activeElement === el && el.getClientRects().length > 0), `Visible focus restored after ${scenario.from.width} to ${scenario.to.width} resize from ${scenario.trigger}`);
-        }
-        await resized.close();
-        console.log('PASS focus restoration across desktop/mobile resize');
-        for (const width of [1440,390]) {
-            const clouds = await browser.newPage({ viewport:{width,height:844}, reducedMotion:'no-preference' });
-            clouds.on('pageerror', error => errors.push(error.message));
-            await clouds.goto(base);
-            assert.equal(await clouds.locator('.hero-clouds').count(), 1, 'Hero contains a cloud background');
-            assert.equal(await clouds.locator('.hero-clouds').getAttribute('aria-hidden'), 'true', 'Clouds are decorative');
-            assert.equal(await clouds.locator('.hero-clouds').evaluate(el => getComputedStyle(el).pointerEvents), 'none', 'Clouds do not intercept clicks');
-            assert.equal(await clouds.locator('.hero-cloud:visible').count(), width <= 760 ? 2 : 4, 'Fewer clouds on mobile');
-            await clouds.evaluate(() => document.fonts.ready);
-            await clouds.evaluate(() => window.scrollTo({top:0,behavior:'instant'}));
-            await clouds.waitForFunction(() => document.querySelector('.hero-clouds').style.getPropertyValue('--cloud-shift') === '0.00px');
-            await clouds.evaluate(() => window.scrollTo({top:250,behavior:'instant'}));
-            await clouds.waitForFunction(() => parseFloat(document.querySelector('.hero-clouds').style.getPropertyValue('--cloud-shift')) > 0);
-            await clouds.waitForFunction(() => {
-                const bounds = document.querySelector('.hero').getBoundingClientRect();
-                const target = (Math.min(1, Math.max(0, -bounds.top / bounds.height)) * 280).toFixed(2) + 'px';
-                return document.querySelector('.hero-clouds').style.getPropertyValue('--cloud-shift') === target;
-            });
-            const shift = await clouds.locator('.hero-clouds').getAttribute('style');
-            const depthTransforms = await clouds.locator('.hero-cloud:visible').evaluateAll(els => els.map(el => getComputedStyle(el).transform));
-            assert.equal(new Set(depthTransforms).size, depthTransforms.length, 'Cloud layers move at different speeds and scales');
-            await clouds.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-            assert.equal(await clouds.locator('.hero-clouds').getAttribute('style'), shift, 'Clouds stop after easing settles');
-            await clouds.emulateMedia({reducedMotion:'reduce'});
-            await clouds.waitForFunction(() => document.querySelector('.hero-clouds').style.getPropertyValue('--cloud-shift') === '0.00px');
-            await clouds.evaluate(() => window.scrollTo({top:350,behavior:'instant'}));
-            await clouds.evaluate(() => new Promise(resolve => requestAnimationFrame(() => requestAnimationFrame(resolve))));
-            assert.equal(await clouds.locator('.hero-cloud').first().evaluate(el => getComputedStyle(el).transform), 'none', 'Reduced motion keeps clouds static');
-            await clouds.close();
-        }
-        console.log('PASS decorative clouds, responsive count, scroll motion and live reduced-motion preference');
-        for (const width of [1440,390]) {
-            const page = await browser.newPage({ viewport:{width,height:844}, reducedMotion:'no-preference', javaScriptEnabled:false });
-            await page.goto(base);
-            const history = page.locator('.history');
-            await page.evaluate(() => document.fonts.ready);
-            assert.equal(await history.locator('dt:visible').count(), 2, 'Both dates are visible before the line fills');
-            for (const progress of [0,.5,1,.5]) {
-                await history.evaluate((el, fraction) => {
-                    const rect = el.getBoundingClientRect();
-                    window.scrollTo({ top:scrollY + rect.top - innerHeight + fraction * rect.height, behavior:'instant' });
-                }, progress);
-                await page.screenshot(); // Flush a rendered frame with page scripts disabled.
-                const style = await history.locator('div').first().evaluate(el => {
-                    const line = getComputedStyle(el, '::before');
-                    return { animation:line.animationName, size:line.backgroundSize };
+
+        const pillars = await desktop.locator('.pillars dt').allTextContents();
+        assert.deepEqual(pillars, ['English Skills', 'Communication', 'Leadership']);
+
+        const dates = await desktop.locator('.dates dt').allTextContents();
+        assert.deepEqual(dates, ['2007', '2012']);
+        assert.match(await desktop.locator('.dates').innerText(), /4 September/);
+
+        assert.match(await desktop.locator('#tentang').innerText(), /Sanctuary/);
+        assert.match(await desktop.locator('#tentang').innerText(), /PIQIE/);
+
+        await desktop.waitForFunction(() => {
+            const img = document.querySelector('.poster img');
+            return img && img.complete && img.naturalWidth > 0;
+        }, null, { timeout: 15000 });
+        assert(await desktop.locator('.poster img').evaluate((img) => img.complete && img.naturalWidth === 1080), 'Poster loads at full width');
+
+        const fonts = await desktop.evaluate(() => ({
+            display: getComputedStyle(document.querySelector('.hero-title')).fontFamily,
+            text: getComputedStyle(document.body).fontFamily
+        }));
+        assert.match(fonts.display, /Bricolage Grotesque/);
+        assert.match(fonts.text, /Instrument Sans/);
+
+        const heroSize = await desktop.locator('.hero-title').evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+        assert(heroSize > 60, `Hero is display size on desktop, got ${heroSize}px`);
+
+        // Contrast of body copy against paper
+        const contrast = await desktop.evaluate(() => {
+            const parse = (c) => c.match(/[\d.]+/g).slice(0, 3).map(Number);
+            const lum = ([r, g, b]) => {
+                const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; };
+                return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b);
+            };
+            const ratio = (a, b) => {
+                const [l1, l2] = [lum(parse(a)), lum(parse(b))].sort((x, y) => y - x);
+                return (l1 + 0.05) / (l2 + 0.05);
+            };
+            const bg = getComputedStyle(document.body).backgroundColor;
+            const muted = getComputedStyle(document.querySelector('.sheet-aside')).color;
+            const ink = getComputedStyle(document.body).color;
+            return { muted: +ratio(muted, bg).toFixed(2), ink: +ratio(ink, bg).toFixed(2) };
+        });
+        assert(contrast.ink >= 4.5, `Body text contrast ${contrast.ink}`);
+        assert(contrast.muted >= 4.5, `Aside text contrast ${contrast.muted}`);
+
+        await desktop.screenshot({ path: path.join(output, 'redesign-1440.png'), fullPage: true });
+
+        for (const viewport of viewports) {
+            const page = await browser.newPage({ viewport });
+            await page.goto(base, { waitUntil: 'domcontentloaded' });
+            // Wait until the external stylesheet is applied so layout is settled
+            await page.waitForFunction(() => getComputedStyle(document.body).margin === '0px' && document.fonts.status === 'loaded', null, { timeout: 20000 });
+            const overflow = await page.evaluate(() => document.documentElement.scrollWidth - document.documentElement.clientWidth);
+            if (overflow > 0) {
+                const detail = await page.evaluate(() => {
+                    const cw = document.documentElement.clientWidth;
+                    return [...document.querySelectorAll('body *')].filter((el) => {
+                        const r = el.getBoundingClientRect();
+                        return r.right > cw + 1 && r.width > 0;
+                    }).slice(0, 8).map((el) => el.tagName + '.' + el.className + ' right=' + Math.round(el.getBoundingClientRect().right) + ' w=' + Math.round(el.getBoundingClientRect().width));
                 });
-                assert.equal(style.animation, 'history-fill');
-                const fill = parseFloat(style.size.split(' ')[width <= 760 ? 0 : 1]);
-                assert(Math.abs(fill - progress * 100) < 3, `Timeline at ${width}px: expected ${progress * 100}%, got ${fill}%`);
+                console.error('OVERFLOW', viewport.width, overflow, JSON.stringify(detail));
             }
-            await page.emulateMedia({reducedMotion:'reduce'});
-            assert.equal(await history.locator('div').first().evaluate(el => getComputedStyle(el, '::before').backgroundSize), '100% 100%', 'Reduced motion shows the full line');
+            assert(overflow <= 0, `No horizontal overflow at ${viewport.width}px, got ${overflow}px`);
+
+            const hero = await page.locator('.hero-title').boundingBox();
+            assert(hero.x >= 0 && hero.x + hero.width <= viewport.width + 1, `Hero fits at ${viewport.width}px`);
+
+            const size = await page.locator('.hero-title').evaluate((el) => parseFloat(getComputedStyle(el).fontSize));
+            assert(size >= 30 && size <= 120, `Hero size sane at ${viewport.width}px, got ${size}px`);
+
+            // Anchor targets must clear the sticky header
+            for (const id of ['tentang', 'jadwal', 'dokumentasi', 'gabung']) {
+                await page.evaluate((target) => {
+                    window.location.hash = '';
+                    window.location.hash = target;
+                }, id);
+                await page.waitForFunction(() => {
+                    const settled = window.__settledY === Math.round(window.scrollY);
+                    window.__settledY = Math.round(window.scrollY);
+                    return settled;
+                }, null, { timeout: 5000, polling: 100 }).catch(() => {});
+                const clear = await page.evaluate((target) => {
+                    const header = document.querySelector('.site-header').getBoundingClientRect();
+                    const section = document.getElementById(target).getBoundingClientRect();
+                    return section.top >= header.bottom - 2;
+                }, id);
+                if (!clear) {
+                    const detail = await page.evaluate((t) => {
+                        const h = document.querySelector('.site-header').getBoundingClientRect();
+                        const s = document.getElementById(t).getBoundingClientRect();
+                        return { headerBottom: Math.round(h.bottom), headerH: Math.round(h.height), sectionTop: Math.round(s.top), hash: location.hash, scrollY: Math.round(scrollY) };
+                    }, id);
+                    console.error('ANCHOR', viewport.width, id, JSON.stringify(detail));
+                }
+                assert(clear, `#${id} clears the sticky header at ${viewport.width}px`);
+            }
+
+            await page.screenshot({ path: path.join(output, `redesign-${viewport.width}.png`), fullPage: true });
             await page.close();
         }
-        console.log('PASS responsive history line follows scroll without JavaScript and respects reduced motion');
-        for (const viewport of [{width:1440,height:1000},{width:1024,height:768},{width:768,height:1024},{width:390,height:844},{width:320,height:568},{width:844,height:390}]) {
-            const context = await browser.newContext({ viewport });
-            const page = await context.newPage();
-            page.on('pageerror', error => errors.push(error.message));
-            page.on('response', response => { if (response.url().startsWith(base) && response.status() >= 400) errors.push(response.url()); });
-            await page.goto(base);
-            assert.equal(await page.locator('.site-header').evaluate(el => getComputedStyle(el).position), 'sticky', 'Header remains sticky with JS');
-            await page.evaluate(() => document.fonts.ready);
-            assert(await page.locator('.hero-poster').evaluate(img => img.complete && img.naturalWidth > 0), 'Hero poster loads');
-            assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `No horizontal overflow at ${viewport.width}`);
-            if (viewport.width <= 760) {
-                await page.locator('.menu-toggle').click();
-                assert.equal(await page.locator('.menu-toggle').getAttribute('aria-expanded'), 'true');
-                await page.locator('.navigation .join-trigger').click();
-                assert.equal(await page.locator('.menu-toggle').getAttribute('aria-expanded'), 'false');
-            } else {
-                assert.equal(await page.locator('.menu-toggle').isVisible(), false);
-                await page.locator('.navigation .join-trigger').click();
-            }
-            await page.waitForTimeout(300);
-            const dialog = page.locator('#joinModal');
-            assert(await dialog.evaluate(d => d.open));
-            const bounds = await dialog.boundingBox();
-            assert(Math.abs(bounds.x + bounds.width / 2 - viewport.width / 2) < 2, 'Dialog horizontally centered');
-            assert(bounds.y >= 0 && bounds.y + bounds.height <= viewport.height + 1, 'Dialog fits viewport');
-            assert(await dialog.evaluate(d => d.scrollWidth <= d.clientWidth), 'No dialog horizontal overflow');
-            assert(await page.locator('.full-poster img').evaluate(img => img.complete && img.naturalWidth > 0), 'Modal poster loads');
-            await page.screenshot({ path: path.join(output, `modal-${viewport.width}x${viewport.height}.png`) });
-            await page.locator('.contact-button').scrollIntoViewIfNeeded();
-            const cta = await page.locator('.contact-button').boundingBox();
-            assert(cta.y >= bounds.y && cta.y + cta.height <= bounds.y + bounds.height + 1, 'Registration CTA reachable by scrolling');
-            assert(await page.locator('.modal-toolbar').evaluate(el => {const r=el.getBoundingClientRect();return r.y>=0&&r.bottom<=innerHeight;}), 'Close toolbar remains reachable');
-            await page.keyboard.press('Escape');
-            await page.waitForFunction(() => !document.body.classList.contains('modal-open'));
-            assert.equal(await dialog.evaluate(d => d.open), false);
-            assert.equal(await page.evaluate(() => document.body.classList.contains('modal-open')), false);
-            assert.equal(await page.evaluate(() => document.activeElement === document.querySelector(innerWidth <= 760 ? '.menu-toggle' : '.navigation .join-trigger')), true, 'Focus restored');
-            await page.locator('.hero-actions .join-trigger').click();
-            await page.waitForTimeout(300);
-            await page.locator('#closeModal').click();
-            assert.equal(await dialog.evaluate(d => d.open), false, 'Close button works');
-            await page.locator('.hero-actions .join-trigger').click();
-            await page.waitForTimeout(300);
-            await page.mouse.click(2, 2);
-            assert.equal(await dialog.evaluate(d => d.open), false, 'Backdrop closes dialog');
-            await page.screenshot({ path: path.join(output, `page-${viewport.width}x${viewport.height}.png`), fullPage: true });
-            console.log(`PASS ${viewport.width}x${viewport.height}: layout, posters, menu, modal bounds, scroll, closing, focus`);
-            await context.close();
-        }
-        const reduced = await browser.newPage({ viewport: {width:390,height:844}, reducedMotion:'reduce' });
-        await reduced.goto(base);
-        assert.equal(await reduced.locator('.hero-copy').evaluate(el => getComputedStyle(el).animationName), 'none');
-        assert.equal(await reduced.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior), 'auto');
+        console.log('PASS content, schedule, contrast, layout at 1440/1024/768/390/320');
+
+        const reduced = await browser.newPage({ viewport: { width: 390, height: 844 }, reducedMotion: 'reduce' });
+        await reduced.goto(base, { waitUntil: 'domcontentloaded' });
+        assert.equal(await reduced.locator('.hero-line').first().evaluate((el) => getComputedStyle(el).animationName), 'none');
         await reduced.close();
         console.log('PASS reduced motion');
-        for (const width of [320,390]) {
-            const nojs = await browser.newPage({ javaScriptEnabled:false, viewport:{width,height:844}, reducedMotion:'reduce' });
-            await nojs.goto(base);
-            assert(await nojs.locator('.navigation').isVisible(), 'Navigation visible without JS');
-            assert(await nojs.locator('.documentation-status').isVisible(), 'Documentation status is visible');
-            const question = nojs.locator('.faq-list details').first();
+
+        for (const width of [320, 390]) {
+            const nojs = await browser.newPage({ javaScriptEnabled: false, viewport: { width, height: 844 } });
+            await nojs.goto(base, { waitUntil: 'domcontentloaded' });
+            assert(await nojs.locator('.site-nav').isVisible(), 'Navigation visible without JS');
+            assert.equal(await nojs.locator('.session').count(), 5, 'All sessions present without JS');
+            const question = nojs.locator('.faq details').first();
             const answer = question.locator('p');
-            assert.equal(await answer.isVisible(), false, 'FAQ answers start collapsed');
+            assert.equal(await answer.isVisible(), false, 'FAQ starts collapsed');
             await question.locator('summary').press('Enter');
             assert(await answer.isVisible(), 'FAQ opens with keyboard without JS');
             await question.locator('summary').press('Space');
             assert.equal(await answer.isVisible(), false, 'FAQ closes with keyboard');
-            await nojs.locator('.navigation .join-trigger').click();
-            assert(new URL(nojs.url()).hash === '#pendaftaran', 'Registration fallback accessible');
-            await nojs.waitForFunction(() => window.scrollY > 0);
-            assert(await nojs.evaluate(() => {
-                const header = document.querySelector('.site-header').getBoundingClientRect();
-                const title = document.querySelector('#recruitment-title').getBoundingClientRect();
-                return title.top >= Math.max(0,header.bottom) && title.bottom <= innerHeight;
-            }), `Recruitment title is visible below header without JS at ${width}px`);
             await nojs.close();
         }
-        console.log('PASS no-JavaScript fallback and visible anchor targets');
-        assert.deepEqual(errors, [], 'No browser JavaScript or local HTTP errors');
+        console.log('PASS no-JavaScript fallback');
+
+        assert.deepEqual(errors, [], 'No browser or HTTP errors');
     } finally {
         if (browser) await browser.close();
-        await new Promise(resolve => server.close(resolve));
+        await new Promise((resolve) => server.close(resolve));
     }
-})().catch(error => { console.error(error); process.exitCode = 1; });
+})().catch((error) => { console.error(error); process.exitCode = 1; });

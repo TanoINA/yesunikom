@@ -1,243 +1,178 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="id">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <meta name="theme-color" content="#086b93">
-    <meta name="description" content="Youth English Society (YES), Unit Kegiatan Mahasiswa bahasa Inggris Universitas Komputer Indonesia. Kenali kegiatan kami dan informasi penerimaan anggota.">
-    <title>YES UNIKOM | Youth English Society</title>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Youth English Society, UKM bahasa Inggris UNIKOM</title>
+    <meta name="description" content="YES adalah unit kegiatan mahasiswa bahasa Inggris di Universitas Komputer Indonesia. Diskusi hari Kamis, kelas berbicara hari Jumat, pukul 15.30 sampai 17.30 WIB.">
     <link rel="canonical" href="https://tanoina.github.io/yesunikom/">
+    <meta name="theme-color" content="#10557F">
     <meta property="og:type" content="website">
     <meta property="og:locale" content="id_ID">
-    <meta property="og:site_name" content="YES UNIKOM">
+    <meta property="og:title" content="Youth English Society, UKM bahasa Inggris UNIKOM">
+    <meta property="og:description" content="Latihan berbicara bahasa Inggris setiap Kamis dan Jumat di Universitas Komputer Indonesia.">
     <meta property="og:url" content="https://tanoina.github.io/yesunikom/">
-    <meta property="og:title" content="YES UNIKOM | Youth English Society">
-    <meta property="og:description" content="Kenali Youth English Society, UKM bahasa Inggris di Universitas Komputer Indonesia. Temukan informasi kegiatan dan cara menghubungi pengurus.">
     <meta property="og:image" content="https://tanoina.github.io/yesunikom/share-yes.png">
-    <meta property="og:image:type" content="image/png">
     <meta property="og:image:width" content="1200">
     <meta property="og:image:height" content="630">
-    <meta property="og:image:alt" content="Logo dan nama Youth English Society, UKM Bahasa Inggris UNIKOM.">
+    <meta property="og:image:alt" content="Youth English Society, unit kegiatan mahasiswa Universitas Komputer Indonesia.">
     <meta name="twitter:card" content="summary_large_image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400..800&amp;family=Instrument+Sans:wght@400;500;600&amp;display=swap">
     <link rel="stylesheet" href="style.css">
-    <script src="site.js" defer></script>
 </head>
 <body>
-    <a class="skip-link" href="#main">Langsung ke konten</a>
-    <div class="university-bar">
-        <div class="container university-inner">
-            <a href="https://www.unikom.ac.id/" class="university-link" target="_blank" rel="noopener noreferrer">
-                <img src="logo-unikom.png" alt="" width="28" height="28">
-                <span>Universitas Komputer Indonesia</span>
-            </a>
-            <span class="university-note">Unit Kegiatan Mahasiswa</span>
-        </div>
-    </div>
+    <a class="skip" href="#utama">Lewati ke konten utama</a>
 
     <header class="site-header">
-        <div class="container header-inner">
-            <a href="#beranda" class="brand" aria-label="Youth English Society, beranda">
-                <img src="logo-yes.png" alt="Logo YES" width="58" height="60">
-                <span>Youth English Society<small>UKM Bahasa Inggris UNIKOM</small></span>
-            </a>
-            <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation" hidden>Menu</button>
-            <nav id="navigation" class="navigation" aria-label="Navigasi utama">
-                <a href="#tentang">Tentang YES</a>
-                <a href="#kegiatan">Kegiatan</a>
-                <a href="#kontak">Kontak</a>
-                <a href="#pendaftaran" class="button button-small join-trigger">Bergabung dengan YES</a>
+        <div class="header-inner">
+            <a class="wordmark" href="#beranda">YES<span>Youth English Society</span></a>
+            <nav class="site-nav" aria-label="Navigasi utama">
+                <a href="#tentang">Tentang</a>
+                <a href="#jadwal">Jadwal</a>
+                <a href="#dokumentasi">Dokumentasi</a>
+                <a href="#gabung">Gabung</a>
             </nav>
         </div>
     </header>
 
-    <main id="main">
-        <section id="beranda" class="hero" aria-labelledby="hero-title">
-            <div class="hero-clouds" aria-hidden="true">
-                <svg class="cloud-definitions" width="0" height="0" focusable="false">
-                    <defs>
-                        <radialGradient id="cloud-body" cx="60%" cy="25%" r="75%">
-                            <stop offset="0" stop-color="#fff"/><stop offset=".45" stop-color="#edf6ff"/>
-                            <stop offset=".8" stop-color="#b8d2ee"/><stop offset="1" stop-color="#88b1dc" stop-opacity="0"/>
-                        </radialGradient>
-                        <radialGradient id="cloud-highlight" cx="65%" cy="20%" r="75%">
-                            <stop offset="0" stop-color="#fff" stop-opacity=".95"/><stop offset="1" stop-color="#f1f8ff" stop-opacity="0"/>
-                        </radialGradient>
-                        <radialGradient id="cloud-shadow">
-                            <stop offset="0" stop-color="#789ec9" stop-opacity=".5"/><stop offset="1" stop-color="#accbe9" stop-opacity="0"/>
-                        </radialGradient>
-                        <filter id="cloud-texture" x="-25%" y="-30%" width="150%" height="160%" color-interpolation-filters="sRGB">
-                            <feTurbulence type="fractalNoise" baseFrequency=".018 .027" numOctaves="2" seed="23" result="noise"/>
-                            <feDisplacementMap in="SourceGraphic" in2="noise" scale="24" xChannelSelector="R" yChannelSelector="G"/>
-                            <feGaussianBlur stdDeviation="4"/>
-                        </filter>
-                        <g id="hero-cloud-shape" filter="url(#cloud-texture)">
-                            <ellipse cx="245" cy="194" rx="177" ry="59" fill="url(#cloud-body)"/>
-                            <ellipse cx="113" cy="182" rx="77" ry="62" fill="url(#cloud-body)"/>
-                            <ellipse cx="371" cy="185" rx="80" ry="66" fill="url(#cloud-body)"/>
-                            <ellipse cx="244" cy="120" rx="91" ry="96" fill="url(#cloud-body)"/>
-                            <ellipse cx="158" cy="145" rx="78" ry="76" fill="url(#cloud-body)"/>
-                            <ellipse cx="324" cy="143" rx="84" ry="79" fill="url(#cloud-body)"/>
-                            <ellipse cx="237" cy="212" rx="167" ry="43" fill="url(#cloud-shadow)"/>
-                            <ellipse cx="264" cy="82" rx="64" ry="55" fill="url(#cloud-highlight)"/>
-                            <ellipse cx="341" cy="122" rx="62" ry="51" fill="url(#cloud-highlight)"/>
-                        </g>
-                    </defs>
-                </svg>
-                <svg class="hero-cloud cloud-upper-left" viewBox="0 0 480 290" focusable="false"><use href="#hero-cloud-shape"/></svg>
-                <svg class="hero-cloud cloud-upper-right" viewBox="0 0 480 290" focusable="false"><use href="#hero-cloud-shape"/></svg>
-                <svg class="hero-cloud cloud-lower-left" viewBox="0 0 480 290" focusable="false"><use href="#hero-cloud-shape"/></svg>
-                <svg class="hero-cloud cloud-lower-right" viewBox="0 0 480 290" focusable="false"><use href="#hero-cloud-shape"/></svg>
+    <main id="utama">
+        <section class="hero" id="beranda" aria-labelledby="hero-title">
+            <div class="hero-inner">
+                <h1 class="hero-title" id="hero-title">
+                    <span class="hero-line">Latihan berbicara</span>
+                    <span class="hero-line">bahasa Inggris</span>
+                    <span class="hero-line">di UNIKOM.</span>
+                </h1>
+                <div class="hero-foot">
+                    <p class="hero-lede">Kami bertemu setiap Kamis dan Jumat, pukul 15.30 sampai 17.30 WIB. Terbuka untuk mahasiswa yang baru mulai maupun yang sudah terbiasa.</p>
+                    <a class="hero-link" href="#jadwal">Lihat jadwal</a>
+                </div>
             </div>
-            <div class="container hero-grid">
-                <div class="hero-copy">
-                    <p class="hero-context">Bahasa Inggris, di luar ruang kuliah.</p>
-                    <h1 id="hero-title">Youth English Society</h1>
-                    <p class="hero-tagline" lang="en">Speak out, connect,<br>and say YES!</p>
-                    <p class="hero-description">Unit Kegiatan Mahasiswa di Universitas Komputer Indonesia yang berfokus pada pengembangan kemampuan bahasa Inggris.</p>
-                    <div class="hero-actions">
-                        <a href="#pendaftaran" class="button join-trigger">Bergabung dengan YES</a>
-                        <a href="#kegiatan" class="text-link">Kenali kegiatan kami</a>
+        </section>
+
+        <section class="sheet" id="tentang" aria-labelledby="tentang-title">
+            <div class="sheet-main">
+                <h2 id="tentang-title">Tentang YES</h2>
+                <p class="lede">Youth English Society adalah unit kegiatan mahasiswa di Universitas Komputer Indonesia. Anggota berlatih bahasa Inggris lewat diskusi, debat, dan kelas berbicara di depan umum.</p>
+                <p>Pengurus menyebut visinya <em lang="en">Sanctuary</em>. Maksudnya sederhana: anggota boleh mencoba berbicara, salah, lalu mencoba lagi, tanpa takut diejek atau didiskriminasi. Bahasa Inggris dipakai sebagai alat latihan, bukan syarat masuk.</p>
+                <p>Dalam berorganisasi, YES berpegang pada Pancasila, asas kekeluargaan, dan nilai PIQIE UNIKOM: <span lang="en">Professionalism, Integrity, Quality, Information Technology, and Excellence</span>.</p>
+
+                <dl class="pillars" aria-label="Tiga pilar YES">
+                    <div>
+                        <dt>English Skills</dt>
+                        <dd>Menambah kosakata dan memakainya langsung saat berdiskusi.</dd>
                     </div>
-                </div>
-                <div class="hero-feature">
-                    <a href="#pendaftaran" class="poster-link join-trigger" aria-label="Lihat poster dan detail Sunny Side Up">
-                        <img class="hero-poster" src="poster-gabung.png" alt="Poster Sunny Side Up, YES First Gathering. Sabtu, 21 November 2026, pukul 08.00–12.00 WIB." width="1080" height="1350" fetchpriority="high">
-                        <span class="poster-hint">Lihat poster &amp; detail acara</span>
-                    </a>
-                    <div class="poster-caption"><strong>Sunny Side Up</strong><span>YES First Gathering</span></div>
-                </div>
-            </div>
-        </section>
-
-        <section id="pendaftaran" class="recruitment" aria-labelledby="recruitment-title">
-            <div class="container recruitment-inner">
-                <div><h2 id="recruitment-title">Penerimaan anggota baru</h2><p>Informasi pendaftaran tersedia melalui Instagram atau email YES.</p></div>
-                <a href="https://www.instagram.com/yesunikom/" target="_blank" rel="noopener noreferrer" class="text-link">Hubungi @yesunikom</a>
-            </div>
-        </section>
-
-        <section id="tentang" class="section container about" aria-labelledby="about-title">
-            <div class="section-heading"><h2 id="about-title">Tentang YES</h2></div>
-            <div class="about-grid">
-                <div class="about-copy">
-                    <p class="lead">YES mewadahi mahasiswa yang ingin mengembangkan keterampilan berkomunikasi dalam bahasa Inggris dan memperoleh pengalaman berorganisasi.</p>
-                    <p>YES mengusung visi <em lang="en">Sanctuary</em>, yaitu ruang aman bagi anggota untuk berlatih berbicara dan menyampaikan pendapat tanpa takut diejek atau didiskriminasi.</p>
-                    <p class="about-values">Dalam berorganisasi, YES berpedoman pada Pancasila, kekeluargaan, serta nilai PIQIE UNIKOM: <span lang="en">Professionalism, Integrity, Quality, Information Technology, and Excellence</span>.</p>
-                </div>
-                <dl class="history" aria-label="Sejarah YES">
-                    <div><dt>2007</dt><dd>YES bermula sebagai komunitas debat bahasa Inggris.</dd></div>
-                    <div><dt>2012</dt><dd>YES resmi menjadi UKM UNIKOM pada 4 September, didukung dosen dan mahasiswa.</dd></div>
+                    <div>
+                        <dt>Communication</dt>
+                        <dd>Menyampaikan pendapat dengan jelas dan menanggapi argumen orang lain.</dd>
+                    </div>
+                    <div>
+                        <dt>Leadership</dt>
+                        <dd>Membagi tugas dan menjalankan kegiatan bersama tim.</dd>
+                    </div>
                 </dl>
             </div>
-            <div class="focus-list" role="group" aria-label="Tiga pilar YES">
-                <article><h3 lang="en">English Skills</h3><p>Latihan kosakata dan percakapan melalui diskusi dan kelas rutin.</p></article>
-                <article><h3 lang="en">Communication</h3><p>Latihan menyampaikan pendapat dan berbicara di depan umum.</p></article>
-                <article><h3 lang="en">Leadership</h3><p>Pengalaman berorganisasi dan mengelola kegiatan bersama.</p></article>
+            <div class="sheet-aside">
+                <dl class="dates">
+                    <div>
+                        <dt>2007</dt>
+                        <dd>YES bermula sebagai komunitas debat bahasa Inggris.</dd>
+                    </div>
+                    <div>
+                        <dt>2012</dt>
+                        <dd>Resmi menjadi UKM UNIKOM pada 4 September, didukung dosen dan mahasiswa.</dd>
+                    </div>
+                </dl>
             </div>
         </section>
 
-        <section id="kegiatan" class="activities section" aria-labelledby="activities-title">
-            <div class="container">
-                <div class="section-heading activity-heading"><h2 id="activities-title">Kegiatan di YES</h2><p>Dari diskusi mingguan hingga pertemuan bulanan di luar kampus.</p></div>
-                <div class="schedule">
-                    <article class="schedule-row">
-                        <div class="schedule-day">Kamis<small>15.30–17.30 WIB</small></div>
-                        <div><h3 lang="en">Forum Group Discussion (FGD)</h3><p>Diskusi kelompok tentang berbagai topik dalam bahasa Inggris, termasuk latihan menyampaikan pendapat dan menggunakan kosakata baru.</p></div>
-                        <span class="schedule-type">Diskusi</span>
-                    </article>
-                    <article class="schedule-row">
-                        <div class="schedule-day">Jumat<small>15.30–17.30 WIB</small></div>
-                        <div><h3 lang="en">Public Speaking Class</h3><p>Latihan pidato, <span lang="en">storytelling</span>, dan berbicara spontan di depan audiens.</p></div>
-                        <span class="schedule-type">Latihan</span>
-                    </article>
-                    <article class="schedule-row">
-                        <div class="schedule-day">Berkala</div>
-                        <div><h3 lang="en">Debate Class</h3><p>Latihan menyusun argumen berdasarkan data dan menanggapi argumen lawan.</p></div>
-                        <span class="schedule-type">Debat</span>
-                    </article>
-                    <article class="schedule-row">
-                        <div class="schedule-day">Berkala</div>
-                        <div><h3 lang="en">TOEFL Preparation Class</h3><p>Pembahasan materi, format soal, dan strategi mengerjakan tes TOEFL.</p></div>
-                        <span class="schedule-type">Persiapan tes</span>
-                    </article>
-                </div>
-                <div class="monthly">
-                    <h3>Kegiatan bulanan</h3>
-                    <article><h4 lang="en">YES Goes Out</h4><p>Kegiatan bersama di luar kampus setiap bulan.</p></article>
-                </div>
-                <p class="schedule-note">Konfirmasi jadwal dan lokasi kegiatan melalui <a href="https://www.instagram.com/yesunikom/" target="_blank" rel="noopener noreferrer">@yesunikom</a>.</p>
+        <section class="sheet" id="jadwal" aria-labelledby="jadwal-title">
+            <div class="sheet-main">
+                <h2 id="jadwal-title">Jadwal</h2>
+                <p class="lede">Dua sesi rutin setiap minggu, ditambah kelas berkala dan satu kegiatan bulanan.</p>
+                <ol class="sessions">
+                    <li class="session">
+                        <p class="when">Kamis, 15.30 sampai 17.30 WIB</p>
+                        <h3 class="what" lang="en">Forum Group Discussion</h3>
+                        <p class="why">Satu topik dibahas dalam bahasa Inggris, dari isu sehari-hari sampai isu global. Anggota berlatih menyusun alasan untuk pendapatnya.</p>
+                    </li>
+                    <li class="session">
+                        <p class="when">Jumat, 15.30 sampai 17.30 WIB</p>
+                        <h3 class="what" lang="en">Public Speaking Class</h3>
+                        <p class="why">Latihan menyusun pidato, bercerita di depan audiens, dan berbicara spontan. Topik berganti setiap pertemuan.</p>
+                    </li>
+                    <li class="session">
+                        <p class="when">Berkala</p>
+                        <h3 class="what" lang="en">Debate Class</h3>
+                        <p class="why">Menyusun argumen berdasarkan data dan menanggapi argumen lawan dengan alasan yang jelas.</p>
+                    </li>
+                    <li class="session">
+                        <p class="when">Berkala</p>
+                        <h3 class="what" lang="en">TOEFL Preparation Class</h3>
+                        <p class="why">Membahas materi ujian, format soal, dan strategi mengerjakan tes TOEFL.</p>
+                    </li>
+                    <li class="session">
+                        <p class="when">Bulanan</p>
+                        <h3 class="what" lang="en">YES Goes Out</h3>
+                        <p class="why">Kegiatan di luar kampus untuk mengenal anggota lain di luar sesi kelas.</p>
+                    </li>
+                </ol>
+            </div>
+            <div class="sheet-aside">
+                <p>Semua sesi terbuka untuk anggota dan tidak dipungut biaya. Perubahan jadwal dan lokasi diumumkan lewat Instagram <a href="https://www.instagram.com/yesunikom/" target="_blank" rel="noopener noreferrer">@yesunikom</a>.</p>
             </div>
         </section>
-        <section id="dokumentasi" class="section documentation" aria-labelledby="documentation-title">
-            <div class="container documentation-inner">
-                <h2 id="documentation-title">Dokumentasi kegiatan</h2>
-                <div>
-                    <p class="documentation-status">Sedang disiapkan</p>
-                    <p>Foto kegiatan YES belum tersedia di situs ini. Informasi kegiatan dapat diikuti melalui <a href="https://www.instagram.com/yesunikom/">Instagram YES</a>.</p>
-                </div>
+
+        <section class="sheet" id="dokumentasi" aria-labelledby="dokumentasi-title">
+            <div class="sheet-main">
+                <h2 id="dokumentasi-title">Dokumentasi</h2>
+                <p class="lede">Poster penerimaan anggota yang dipakai YES untuk mengumumkan periode perekrutan.</p>
+                <figure class="poster">
+                    <img src="poster-gabung.png" width="1080" height="1350" alt="Poster penerimaan anggota Youth English Society dengan latar langit biru dan pesawat kertas." loading="lazy" decoding="async">
+                    <figcaption>Poster penerimaan anggota, 1080 kali 1350 piksel.</figcaption>
+                </figure>
+            </div>
+            <div class="sheet-aside">
+                <p>Poster ini disebar lewat Instagram dan cetak untuk periode perekrutan anggota baru. Isinya ajakan bergabung, jadwal dua sesi rutin, dan tautan pendaftaran.</p>
+                <p><a href="poster-gabung.png" target="_blank" rel="noopener noreferrer">Buka poster ukuran penuh</a></p>
             </div>
         </section>
-        <section id="faq" class="section faq" aria-labelledby="faq-title">
-            <div class="container faq-grid">
-                <h2 id="faq-title">Pertanyaan umum</h2>
-                <div class="faq-list">
+
+        <section class="sheet" id="gabung" aria-labelledby="gabung-title">
+            <div class="sheet-main">
+                <h2 id="gabung-title">Gabung</h2>
+                <p class="lede">Tidak ada seleksi ketat. Datang ke sesi Kamis atau Jumat, lalu kenalan dengan pengurus.</p>
+                <div class="faq">
                     <details>
-                        <summary>Apakah saya harus sudah lancar berbahasa Inggris?</summary>
-                        <p>Tidak. Anda dapat berlatih bersama anggota lain melalui diskusi Kamis dan kelas public speaking hari Jumat.</p>
+                        <summary>Apakah harus sudah lancar bahasa Inggris?</summary>
+                        <p>Tidak. Latihan dimulai dari tingkat pemula, dan setiap anggota boleh bertanya kapan saja.</p>
                     </details>
                     <details>
-                        <summary>Siapa yang dapat bergabung dengan YES?</summary>
-                        <p>YES mewadahi mahasiswa UNIKOM. Ketentuan keanggotaan dapat dikonfirmasi kepada <a href="#kontak">pengurus YES</a>.</p>
+                        <summary>Siapa yang boleh bergabung?</summary>
+                        <p>Mahasiswa Universitas Komputer Indonesia yang ingin berlatih bahasa Inggris.</p>
                     </details>
                     <details>
-                        <summary>Bagaimana cara bergabung dengan YES?</summary>
-                        <p>Untuk bergabung, cukup <a href="#kontak">hubungi pengurus YES</a> melalui Instagram atau email.</p>
+                        <summary>Bagaimana cara mendaftar?</summary>
+                        <p>Ikuti Instagram <a href="https://www.instagram.com/yesunikom/" target="_blank" rel="noopener noreferrer">@yesunikom</a> untuk jadwal penerimaan anggota, atau temui pengurus langsung di salah satu sesi.</p>
                     </details>
                 </div>
+            </div>
+            <div class="sheet-aside">
+                <ul class="contact">
+                    <li><span>Instagram</span><a href="https://www.instagram.com/yesunikom/" target="_blank" rel="noopener noreferrer">@yesunikom</a></li>
+                    <li><span>Email</span><a href="mailto:hallo.yesunikom@gmail.com">hallo.yesunikom@gmail.com</a></li>
+                </ul>
             </div>
         </section>
     </main>
 
-    <footer id="kontak" class="site-footer">
-        <div class="container footer-grid">
-            <div class="footer-identity">
-                <img src="logo-yes.png" alt="Logo Youth English Society" width="70" height="72" loading="lazy">
-                <h2>Sampai bertemu<br>di YES.</h2>
-                <p>Unit Kegiatan Mahasiswa bahasa Inggris<br>Universitas Komputer Indonesia, Bandung.</p>
-            </div>
-            <div class="footer-contact"><h3>Hubungi kami</h3>
-                <a href="https://www.instagram.com/yesunikom/" target="_blank" rel="noopener noreferrer">Instagram @yesunikom</a>
-                <a href="https://www.tiktok.com/@yesunikom" target="_blank" rel="noopener noreferrer">TikTok @yesunikom</a>
-                <a href="mailto:hallo.yesunikom@gmail.com">hallo.yesunikom@gmail.com</a>
-                <a class="footer-join join-trigger" href="#pendaftaran">Informasi pendaftaran</a>
-            </div>
+    <footer class="site-footer">
+        <div class="footer-inner">
+            <p class="wordmark">YES<span>Youth English Society</span></p>
+            <p>Unit Kegiatan Mahasiswa Universitas Komputer Indonesia.</p>
         </div>
-        <div class="container footer-bottom"><span>&copy; <span id="year">2026</span> Youth English Society</span><a href="https://www.unikom.ac.id/" target="_blank" rel="noopener noreferrer">Universitas Komputer Indonesia</a></div>
     </footer>
-
-    <dialog id="joinModal" class="join-dialog" aria-labelledby="join-title" aria-describedby="join-description">
-        <div class="modal-toolbar"><span>Informasi keanggotaan &amp; acara</span><button type="button" id="closeModal" class="close-button" autofocus>Tutup <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="m6 6 12 12M18 6 6 18"/></svg></button></div>
-        <div class="modal-grid">
-            <div class="modal-poster-wrap"><a href="poster-gabung.png" target="_blank" rel="noopener" class="full-poster"><img src="poster-gabung.png" alt="Poster lengkap Sunny Side Up, YES First Gathering" width="1080" height="1350" loading="lazy"><span>Buka poster ukuran penuh</span></a><p id="poster-error" hidden>Poster belum dapat dimuat. Detail acara tersedia di samping atau di bawah bagian ini.</p></div>
-            <div class="modal-details">
-                <p class="modal-context">YES First Gathering</p>
-                <h2 id="join-title" lang="en">Sunny Side Up</h2>
-                <p class="modal-tagline" lang="en">Speak out, connect, and say YES!</p>
-                <dl class="event-details">
-                    <div><dt>Tanggal</dt><dd>Sabtu, 21 November 2026</dd></div>
-                    <div><dt>Waktu</dt><dd>08.00–12.00 WIB</dd></div>
-                    <div><dt>Tempat</dt><dd>Monumen Perjuangan Rakyat Jawa Barat,<br>Taman Griya Kriya</dd></div>
-                    <div><dt lang="en">Dress code</dt><dd lang="en">Your best summer outfit</dd></div>
-                </dl>
-                <div class="dress-palette" aria-label="Palet pakaian: kuning, biru muda, hijau muda, dan putih"><span style="--swatch:#ffd43b"></span><span style="--swatch:#a6cee4"></span><span style="--swatch:#c4cd78"></span><span style="--swatch:#fff"></span><p>Kuning, biru muda, hijau muda, putih</p></div>
-                <div class="registration-note"><h3>Ingin menjadi anggota YES?</h3><p id="join-description">Hubungi pengurus untuk informasi pendaftaran anggota baru dan keikutsertaan dalam acara ini.</p></div>
-                <a class="button contact-button" href="https://www.instagram.com/yesunikom/" target="_blank" rel="noopener noreferrer">Tanya pendaftaran di Instagram</a>
-                <a class="modal-email" href="mailto:hallo.yesunikom@gmail.com">hallo.yesunikom@gmail.com</a>
-            </div>
-        </div>
-    </dialog>
 </body>
 </html>
