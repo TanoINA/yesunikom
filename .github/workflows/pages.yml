@@ -31,6 +31,7 @@ jobs:
         run: |
           mkdir _site
           cp index.html style.css site.js logo-yes.png logo-unikom.png poster-gabung.png share-yes.png _site/
+          cp -r assets _site/
       - uses: actions/upload-pages-artifact@v3
         with:
           path: _site
