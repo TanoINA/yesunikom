@@ -489,39 +489,6 @@ p {
     text-shadow: 0 2px 14px rgba(10, 41, 86, 0.55);
 }
 
-.stage-shortcuts {
-    display: flex;
-    flex-wrap: wrap;
-    justify-content: center;
-    gap: 10px;
-}
-
-.stage-shortcuts a {
-    display: inline-flex;
-    align-items: center;
-    min-height: 36px;
-    background: rgba(10, 40, 82, 0.52);
-    border: 1px solid rgba(255, 255, 255, 0.42);
-    backdrop-filter: blur(6px);
-    color: #fff;
-    font-size: 12px;
-    font-weight: 700;
-    letter-spacing: 0.06em;
-    text-transform: uppercase;
-    padding: 7px 15px;
-    border-radius: 999px;
-    text-decoration: none;
-    transition: background 0.2s, transform 0.2s, color 0.2s;
-}
-
-.stage-shortcuts a:hover,
-.stage-shortcuts a:focus-visible {
-    background: var(--sun);
-    border-color: var(--sun);
-    color: var(--ink);
-    transform: translateY(-2px);
-}
-
 /* Objek yang bisa diklik */
 .scene-object {
     text-decoration: none;
@@ -1390,13 +1357,6 @@ p {
     .stage-pill {
         font-size: 13px;
         padding: 7px 14px;
-    }
-    .stage-shortcuts {
-        gap: 8px;
-    }
-    .stage-shortcuts a {
-        padding: 8px 13px;
-        font-size: 11px;
     }
     .paper-plane {
         top: 43%;
