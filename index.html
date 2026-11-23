@@ -26,7 +26,7 @@
     <!-- Font -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,500;12..96,600;12..96,700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=Source+Sans+3:wght@400;500;600;700&display=swap" rel="stylesheet">
 
     <!-- CSS & Script -->
     <link rel="stylesheet" href="style.css">
@@ -39,7 +39,7 @@
     <div class="university-bar">
         <div class="container university-inner">
             <a href="https://www.unikom.ac.id/" class="university-link" target="_blank" rel="noopener noreferrer">
-                <img src="logo-unikom.png" alt="" width="28" height="28">
+                <img src="logo-unikom.png" alt="" width="28" height="28" decoding="async">
                 <span>Universitas Komputer Indonesia</span>
             </a>
             <span class="university-note">Unit Kegiatan Mahasiswa</span>
@@ -50,7 +50,7 @@
     <header class="site-header">
         <div class="container header-inner">
             <a href="#beranda" class="brand" aria-label="Youth English Society, beranda">
-                <img src="logo-yes.png" alt="Logo YES" width="58" height="60">
+                <img src="logo-yes.png" alt="Logo YES" width="58" height="60" decoding="async">
                 <span>Youth English Society<small>UKM Bahasa Inggris UNIKOM</small></span>
             </a>
             <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="navigation" hidden>Menu</button>
@@ -95,7 +95,7 @@
                 </div>
                 <div class="hero-feature">
                     <a href="#pendaftaran" class="poster-link join-trigger" aria-label="Lihat poster dan detail Sunny Side Up">
-                        <img class="hero-poster" src="poster-gabung.jpg" alt="Poster Sunny Side Up, YES First Gathering. Sabtu, 21 November 2026, pukul 08.00–12.00 WIB." width="1080" height="1350" fetchpriority="high">
+                        <img class="hero-poster" src="poster-gabung.jpg" alt="Poster Sunny Side Up, YES First Gathering. Sabtu, 21 November 2026, pukul 08.00–12.00 WIB." width="880" height="1100" fetchpriority="high">
                         <span class="poster-hint">Lihat poster &amp; detail acara</span>
                     </a>
                     <div class="poster-caption"><strong>Sunny Side Up</strong><span>YES First Gathering</span></div>
@@ -112,7 +112,7 @@
                 <!-- Objek 1: Pesawat Kertas -->
                 <a class="scene-object paper-plane" href="#sejarah" data-story="sejarah" aria-label="Buka sejarah YES: Where It Began">
                     <span class="object-halo" aria-hidden="true"></span>
-                    <img src="assets/images/pesawat_kertas.png" alt="" width="349" height="252">
+                    <img src="assets/images/pesawat_kertas.png" alt="" width="349" height="252" decoding="async">
                     <span class="object-tag">
                         <span class="tag-dot" aria-hidden="true"></span>
                         <span class="tag-text"><strong>Where It Began</strong><small>Sejarah YES &rarr;</small></span>
@@ -122,7 +122,7 @@
                 <!-- Objek 2: Burung Merpati -->
                 <a class="scene-object dove" href="#nilai" data-story="nilai" aria-label="Buka nilai YES: Our Little World">
                     <span class="object-halo" aria-hidden="true"></span>
-                    <img src="assets/images/burung_merpati.png" alt="" width="481" height="481">
+                    <img src="assets/images/burung_merpati.png" alt="" width="481" height="481" decoding="async">
                     <span class="object-tag">
                         <span class="tag-dot" aria-hidden="true"></span>
                         <span class="tag-text"><strong>Our Little World</strong><small>Visi &amp; 3 Pilar &rarr;</small></span>
@@ -132,7 +132,7 @@
                 <!-- Objek 3: Bunga Daisy -->
                 <a class="scene-object daisy" href="#kegiatan" data-story="kegiatan" aria-label="Buka kegiatan YES: What We Do">
                     <span class="object-halo" aria-hidden="true"></span>
-                    <img src="assets/images/bunga.png" alt="" width="294" height="441">
+                    <img src="assets/images/bunga.png" alt="" width="294" height="441" decoding="async">
                     <span class="object-tag">
                         <span class="tag-dot" aria-hidden="true"></span>
                         <span class="tag-text"><strong>What We Do</strong><small>Kegiatan Rutin &rarr;</small></span>
@@ -140,8 +140,8 @@
                 </a>
 
                 <!-- Dekorasi Pohon & Padang Rumput -->
-                <img src="assets/images/pohon.png" alt="" class="decor-tree" width="643" height="1065" aria-hidden="true">
-                <img src="assets/images/rumput.webp" alt="" class="decor-meadow" width="1440" height="837" aria-hidden="true">
+                <img src="assets/images/pohon.png" alt="" class="decor-tree" width="480" height="795" fetchpriority="low" aria-hidden="true">
+                <img src="assets/images/rumput.webp" alt="" class="decor-meadow" width="1200" height="698" fetchpriority="low" aria-hidden="true">
             </div>
         </section>
 
@@ -298,7 +298,7 @@
             </button>
         </div>
         <div id="storyModalHero" class="story-modal-hero" aria-hidden="true">
-            <img id="storyModalIcon" src="assets/images/pesawat_kertas.png" alt="" width="68" height="68">
+            <img id="storyModalIcon" src="assets/images/pesawat_kertas.png" alt="" width="68" height="68" loading="lazy" decoding="async">
             <div>
                 <span id="storyModalKicker" class="story-modal-kicker">CERITA YES</span>
                 <p id="storyModalSub" class="story-modal-sub">Youth English Society UNIKOM</p>
@@ -318,7 +318,7 @@
         <div class="modal-grid">
             <div class="modal-poster-wrap">
                 <a href="poster-gabung.jpg" target="_blank" rel="noopener noreferrer" class="full-poster">
-                    <img src="poster-gabung.jpg" alt="Poster lengkap Sunny Side Up, YES First Gathering" width="1080" height="1350">
+                    <img src="poster-gabung.jpg" alt="Poster lengkap Sunny Side Up, YES First Gathering" width="880" height="1100" decoding="async">
                     <span>Buka poster ukuran penuh</span>
                 </a>
                 <p id="poster-error" hidden>Poster belum dapat dimuat. Detail acara tersedia di samping atau di bawah bagian ini.</p>
