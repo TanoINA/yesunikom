@@ -276,6 +276,7 @@ const server = http.createServer((req, res) => {
         assert.equal(await reduced.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior), 'auto');
         assert.equal(await reduced.locator('#cloud-stage .cloud-2').evaluate((el) => el.style.transform), '', 'Sky clouds have no JS inline parallax transform');
         assert.equal(await reduced.locator('#cloud-stage .cloud-2').evaluate((el) => getComputedStyle(el).transform), cloudBefore, 'Sky clouds remain static when scrolling');
+        assert.equal(await reduced.locator('.paper-plane').evaluate((el) => getComputedStyle(el).transform), 'none', 'Live reduced-motion resets stage button scroll transform');
         assert.equal(await reduced.locator('.paper-plane img').evaluate((el) => getComputedStyle(el).transform), 'none', 'Live reduced-motion stops CSS idle animation');
         await reduced.close();
         console.log('PASS reduced motion (initial and live toggle)');

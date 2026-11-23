@@ -4,12 +4,84 @@ document.documentElement.classList.add('js');
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 
-// Jeda animasi CSS objek panggung saat keluar layar
+// Animasi scroll & jeda off-screen untuk tombol objek interaktif (awan tetap statis)
 const stageEl = document.querySelector('.interactive-stage');
-if (stageEl && 'IntersectionObserver' in window) {
-    new IntersectionObserver((entries) => {
-        stageEl.classList.toggle('is-offscreen', !entries[0].isIntersecting);
-    }).observe(stageEl);
+const planeEl = document.querySelector('.paper-plane');
+const doveEl = document.querySelector('.dove');
+
+if (stageEl) {
+    let stageVisible = true;
+    let current = 0;
+    let target = 0;
+    let rafId = 0;
+
+    const paintObjects = () => {
+        if (!planeEl || !doveEl) return;
+        if (prefersReducedMotion.matches) {
+            planeEl.style.transform = '';
+            doveEl.style.transform = '';
+            return;
+        }
+        const w = window.innerWidth;
+        const maxPlaneX = w <= 360 ? 10 : w <= 760 ? 18 : Math.min(180, w * 0.14);
+        const maxDoveX = w <= 360 ? 8 : w <= 760 ? 14 : Math.min(130, w * 0.1);
+        const maxY = w <= 760 ? 20 : 26;
+        planeEl.style.transform = `translate3d(${(maxPlaneX * current).toFixed(1)}px, ${(-maxY * current).toFixed(1)}px, 0) rotate(${(10 * current).toFixed(2)}deg)`;
+        doveEl.style.transform = `translate3d(${(-maxDoveX * current).toFixed(1)}px, ${(-(maxY - 2) * current).toFixed(1)}px, 0) rotate(${(-6 * current).toFixed(2)}deg)`;
+    };
+
+    const tickObjects = () => {
+        if (document.body.classList.contains('modal-open') || prefersReducedMotion.matches) {
+            rafId = 0;
+            return;
+        }
+        const diff = target - current;
+        current += diff * 0.14;
+        if (Math.abs(diff) < 0.001) {
+            current = target;
+            paintObjects();
+            rafId = 0;
+            return;
+        }
+        paintObjects();
+        rafId = requestAnimationFrame(tickObjects);
+    };
+
+    const onStageScroll = () => {
+        if (!stageVisible || prefersReducedMotion.matches || document.body.classList.contains('modal-open')) return;
+        const rect = stageEl.getBoundingClientRect();
+        const vh = window.innerHeight;
+        target = Math.min(1, Math.max(0, (vh - rect.top) / Math.max(1, vh + rect.height)));
+        if (!rafId) rafId = requestAnimationFrame(tickObjects);
+    };
+
+    prefersReducedMotion.addEventListener('change', () => {
+        if (rafId) {
+            cancelAnimationFrame(rafId);
+            rafId = 0;
+        }
+        current = 0;
+        target = 0;
+        paintObjects();
+        if (!prefersReducedMotion.matches) onStageScroll();
+    });
+
+    if ('IntersectionObserver' in window) {
+        new IntersectionObserver((entries) => {
+            stageVisible = entries[0].isIntersecting;
+            stageEl.classList.toggle('is-offscreen', !stageVisible);
+            if (stageVisible) {
+                window.addEventListener('scroll', onStageScroll, { passive: true });
+                onStageScroll();
+            } else {
+                window.removeEventListener('scroll', onStageScroll);
+                if (rafId) {
+                    cancelAnimationFrame(rafId);
+                    rafId = 0;
+                }
+            }
+        }).observe(stageEl);
+    }
 }
 
 // =========================================

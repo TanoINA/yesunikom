@@ -1701,12 +1701,12 @@ body.modal-open .scene-object img,
     .paper-plane {
         top: 23%;
         left: auto;
-        right: 7%;
+        right: 9%;
         width: clamp(110px, 30vw, 148px);
     }
     .dove {
         top: 37%;
-        left: 5%;
+        left: 8%;
         width: clamp(112px, 31vw, 162px);
     }
     .daisy {
