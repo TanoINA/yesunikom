@@ -258,11 +258,8 @@ const server = http.createServer((req, res) => {
         await reduced.waitForTimeout(250);
         await reduced.emulateMedia({ reducedMotion: 'reduce' });
         assert.equal(await reduced.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior), 'auto');
-        assert.equal(await reduced.locator('#cloud-stage .cloud-cluster').first().evaluate((el) => el.style.transform), 'translate3d(0px, 0px, 0px) scale(0.95)', 'Live reduced-motion resets cloud parallax');
-        assert(['none', 'matrix(1, 0, 0, 1, 0, 0)'].includes(await reduced.locator('.paper-plane').evaluate((el) => getComputedStyle(el).transform)), 'Live reduced-motion reverts GSAP scroll transform');
-        await reduced.evaluate(() => window.scrollTo({ top: 500, behavior: 'instant' }));
-        await reduced.waitForTimeout(150);
-        assert.equal(await reduced.locator('#cloud-stage .cloud-cluster').first().evaluate((el) => el.style.transform), 'translate3d(0px, 0px, 0px) scale(0.95)', 'Clouds remain static when scrolling with reduced motion');
+        assert.equal(await reduced.locator('#cloud-stage .cloud-cluster').first().evaluate((el) => el.style.transform), '', 'Sky clouds remain static without parallax transform');
+        assert(['none', 'matrix(1, 0, 0, 1, 0, 0)'].includes(await reduced.locator('.paper-plane img').evaluate((el) => getComputedStyle(el).transform)), 'Live reduced-motion reverts GSAP idle transform');
         await reduced.close();
         console.log('PASS reduced motion (initial and live toggle)');
 

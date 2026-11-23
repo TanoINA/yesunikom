@@ -301,8 +301,6 @@ p {
 .cloud-cluster {
     position: absolute;
     aspect-ratio: 1 / 1;
-    will-change: transform;
-    transform-origin: center center;
     pointer-events: none;
 }
 
