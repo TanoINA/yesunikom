@@ -29,19 +29,9 @@ const isMobile = window.innerWidth <= 768;
             ]
         },
         {
-            width: '36vw', minWidth: 190, maxWidth: 520,
-            baseX: 60, baseY: 14, travelX: -28, travelY: -10, depth: 0.55,
-            scaleStart: 0.92, scaleEnd: 1.05, opacity: 0.65,
-            filter: 'url(#cumulus-fluff-mid)', mobileShow: false,
-            puffs: [
-                { cx: 36, cy: 56, rx: 22, ry: 13, fill: 'url(#cloud-grad-soft)' },
-                { cx: 54, cy: 46, rx: 24, ry: 17, fill: 'url(#cloud-grad-bright)' },
-                { cx: 70, cy: 55, rx: 19, ry: 13, fill: 'url(#cloud-grad-soft)' }
-            ]
-        },
-        {
-            width: '62vw', minWidth: 260, maxWidth: 940,
-            baseX: 8, baseY: 38, travelX: -42, travelY: -16, depth: 1.0,
+            width: '62vw', minWidth: 280, maxWidth: 940,
+            baseX: 8, baseY: 38, mobileX: -8, mobileY: 22,
+            travelX: -42, travelY: -16, depth: 1.0,
             scaleStart: 0.95, scaleEnd: 1.14, opacity: 0.88,
             filter: 'url(#cumulus-fluff-heavy)', mobileShow: true,
             puffs: [
@@ -56,9 +46,10 @@ const isMobile = window.innerWidth <= 768;
             ]
         },
         {
-            width: '54vw', minWidth: 230, maxWidth: 800,
-            baseX: 56, baseY: 50, travelX: -54, travelY: -15, depth: 0.85,
-            scaleStart: 0.92, scaleEnd: 1.1, opacity: 0.82,
+            width: '54vw', minWidth: 260, maxWidth: 800,
+            baseX: 56, baseY: 50, mobileX: 34, mobileY: 54,
+            travelX: -54, travelY: -15, depth: 0.85,
+            scaleStart: 0.92, scaleEnd: 1.1, opacity: 0.84,
             filter: 'url(#cumulus-fluff-heavy)', mobileShow: true,
             puffs: [
                 { cx: 48, cy: 60, rx: 34, ry: 16, fill: 'url(#cloud-grad-bright)' },
@@ -70,9 +61,10 @@ const isMobile = window.innerWidth <= 768;
             ]
         },
         {
-            width: '52vw', minWidth: 220, maxWidth: 760,
-            baseX: -14, baseY: 62, travelX: 48, travelY: -18, depth: 0.9,
-            scaleStart: 0.94, scaleEnd: 1.12, opacity: 0.78,
+            width: '52vw', minWidth: 260, maxWidth: 760,
+            baseX: -14, baseY: 62, mobileX: -18, mobileY: 66,
+            travelX: 48, travelY: -14, depth: 0.9,
+            scaleStart: 0.94, scaleEnd: 1.12, opacity: 0.82,
             filter: 'url(#cumulus-fluff-mid)', mobileShow: true,
             puffs: [
                 { cx: 34, cy: 55, rx: 22, ry: 14, fill: 'url(#cloud-grad-soft)' },
@@ -82,9 +74,10 @@ const isMobile = window.innerWidth <= 768;
             ]
         },
         {
-            width: '58vw', minWidth: 240, maxWidth: 880,
-            baseX: 34, baseY: 70, travelX: -36, travelY: -22, depth: 1.2,
-            scaleStart: 0.96, scaleEnd: 1.16, opacity: 0.86,
+            width: '58vw', minWidth: 280, maxWidth: 880,
+            baseX: 34, baseY: 70, mobileX: 28, mobileY: 74,
+            travelX: -36, travelY: -16, depth: 1.2,
+            scaleStart: 0.96, scaleEnd: 1.16, opacity: 0.88,
             filter: 'url(#cumulus-fluff-heavy)', mobileShow: true,
             puffs: [
                 { cx: 50, cy: 60, rx: 36, ry: 16, fill: 'url(#cloud-grad-bright)' },
@@ -95,14 +88,27 @@ const isMobile = window.innerWidth <= 768;
             ]
         },
         {
-            width: '46vw', minWidth: 220, maxWidth: 700,
-            baseX: 68, baseY: 75, travelX: -62, travelY: -16, depth: 0.75,
-            scaleStart: 0.9, scaleEnd: 1.08, opacity: 0.72,
-            filter: 'url(#cumulus-fluff-mid)', mobileShow: false,
+            width: '46vw', minWidth: 250, maxWidth: 700,
+            baseX: 68, baseY: 75, mobileX: -12, mobileY: 83,
+            travelX: 42, travelY: -12, depth: 0.75,
+            scaleStart: 0.9, scaleEnd: 1.08, opacity: 0.78,
+            filter: 'url(#cumulus-fluff-mid)', mobileShow: true,
             puffs: [
                 { cx: 38, cy: 56, rx: 24, ry: 14, fill: 'url(#cloud-grad-soft)' },
                 { cx: 58, cy: 48, rx: 25, ry: 17, fill: 'url(#cloud-grad-bright)' },
                 { cx: 74, cy: 58, rx: 18, ry: 12, fill: 'url(#cloud-grad-soft)' }
+            ]
+        },
+        {
+            width: '36vw', minWidth: 240, maxWidth: 520,
+            baseX: 60, baseY: 14, mobileX: 38, mobileY: 88,
+            travelX: -28, travelY: -10, depth: 0.65,
+            scaleStart: 0.92, scaleEnd: 1.06, opacity: 0.74,
+            filter: 'url(#cumulus-fluff-mid)', mobileShow: true,
+            puffs: [
+                { cx: 36, cy: 56, rx: 22, ry: 13, fill: 'url(#cloud-grad-soft)' },
+                { cx: 54, cy: 46, rx: 24, ry: 17, fill: 'url(#cloud-grad-bright)' },
+                { cx: 70, cy: 55, rx: 19, ry: 13, fill: 'url(#cloud-grad-soft)' }
             ]
         }
     ];
@@ -156,8 +162,10 @@ const isMobile = window.innerWidth <= 768;
         const wrapper = document.createElement('div');
         wrapper.className = 'cloud-cluster';
         wrapper.style.width = `clamp(${cfg.minWidth}px, ${cfg.width}, ${cfg.maxWidth}px)`;
-        wrapper.style.left = `${cfg.baseX}%`;
-        wrapper.style.top = `${cfg.baseY}%`;
+        const x = isMobile && cfg.mobileX !== undefined ? cfg.mobileX : cfg.baseX;
+        const y = isMobile && cfg.mobileY !== undefined ? cfg.mobileY : cfg.baseY;
+        wrapper.style.left = `${x}%`;
+        wrapper.style.top = `${y}%`;
         wrapper.style.opacity = cfg.opacity;
         wrapper.appendChild(bakeCloudCanvas(cfg));
         stage.appendChild(wrapper);
@@ -213,7 +221,7 @@ const isMobile = window.innerWidth <= 768;
     }
 
     function onPointerMove(event) {
-        if (!heroVisible || isMobile || prefersReducedMotion.matches) return;
+        if (!heroVisible || prefersReducedMotion.matches) return;
         targetPx = (event.clientX / Math.max(1, window.innerWidth) - 0.5) * 2;
         targetPy = (event.clientY / Math.max(1, window.innerHeight) - 0.5) * 2;
         if (!rafId) rafId = requestAnimationFrame(tick);
@@ -243,10 +251,12 @@ const isMobile = window.innerWidth <= 768;
             if (heroVisible) {
                 window.addEventListener('scroll', onScroll, { passive: true });
                 window.addEventListener('pointermove', onPointerMove, { passive: true });
+                window.addEventListener('pointerdown', onPointerMove, { passive: true });
                 onScroll();
             } else {
                 window.removeEventListener('scroll', onScroll);
                 window.removeEventListener('pointermove', onPointerMove);
+                window.removeEventListener('pointerdown', onPointerMove);
                 if (rafId) {
                     cancelAnimationFrame(rafId);
                     rafId = 0;
@@ -336,9 +346,9 @@ const isMobile = window.innerWidth <= 768;
 
     mm.add('(max-width: 760px) and (prefers-reduced-motion: no-preference)', () => {
         gsap.to('.paper-plane', {
-            x: 18,
-            y: -14,
-            rotation: 7,
+            x: 20,
+            y: -22,
+            rotation: 9,
             ease: 'none',
             scrollTrigger: {
                 trigger: '.interactive-stage',
@@ -349,9 +359,9 @@ const isMobile = window.innerWidth <= 768;
         });
 
         gsap.to('.dove', {
-            x: -16,
-            y: -12,
-            rotation: -5,
+            x: -18,
+            y: -18,
+            rotation: -6,
             ease: 'none',
             scrollTrigger: {
                 trigger: '.interactive-stage',

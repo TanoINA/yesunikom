@@ -523,13 +523,15 @@ p {
 }
 
 .scene-object:hover,
-.scene-object:focus-visible {
+.scene-object:focus-visible,
+.scene-object:active {
     scale: 1.09;
     filter: drop-shadow(0 16px 26px rgba(10, 35, 74, 0.32));
 }
 
 .scene-object:hover .object-halo,
-.scene-object:focus-visible .object-halo {
+.scene-object:focus-visible .object-halo,
+.scene-object:active .object-halo {
     opacity: 1;
     scale: 1.18;
 }
@@ -591,7 +593,8 @@ p {
 }
 
 .scene-object:hover .object-tag,
-.scene-object:focus-visible .object-tag {
+.scene-object:focus-visible .object-tag,
+.scene-object:active .object-tag {
     background: var(--sun);
     border-color: #ffe376;
     transform: translateY(-3px);
@@ -599,13 +602,15 @@ p {
 }
 
 .scene-object:hover .tag-dot,
-.scene-object:focus-visible .tag-dot {
+.scene-object:focus-visible .tag-dot,
+.scene-object:active .tag-dot {
     background: var(--ink);
     box-shadow: 0 0 0 4px rgba(21, 54, 72, 0.2);
 }
 
 .scene-object:hover .tag-text small,
-.scene-object:focus-visible .tag-text small {
+.scene-object:focus-visible .tag-text small,
+.scene-object:active .tag-text small {
     color: var(--ink);
     transform: translateX(2px);
 }
@@ -1431,46 +1436,49 @@ p {
         margin-top: 12px;
     }
     .interactive-stage {
-        height: 580px;
-        margin-top: 8px;
+        height: clamp(610px, calc(100dvh - 74px), 740px);
+        margin-top: 12px;
     }
     .stage-pill {
         font-size: 13px;
         padding: 7px 14px;
     }
+    .stage-title {
+        font-size: clamp(24px, 6.8vw, 32px);
+    }
     .paper-plane {
-        top: 29%;
+        top: 25%;
         left: auto;
-        right: 5%;
-        width: clamp(104px, 28vw, 140px);
+        right: 7%;
+        width: clamp(110px, 30vw, 148px);
     }
     .dove {
-        top: 42%;
-        left: 3%;
-        width: clamp(118px, 32vw, 155px);
+        top: 43%;
+        left: 6%;
+        width: clamp(124px, 34vw, 166px);
     }
     .daisy {
         bottom: 9%;
         left: 50%;
-        width: clamp(74px, 20vw, 96px);
+        width: clamp(80px, 22vw, 106px);
     }
     .object-tag {
-        padding: 5px 11px 5px 9px;
-        gap: 6px;
+        padding: 6px 12px 6px 10px;
+        gap: 7px;
     }
     .tag-text strong {
-        font-size: 10.5px;
+        font-size: 11px;
     }
     .tag-text small {
-        font-size: 9.5px;
+        font-size: 10px;
     }
     .decor-tree {
-        height: 48%;
-        right: -6%;
-        bottom: 50px;
+        height: 50%;
+        right: -5%;
+        bottom: 54px;
     }
     .decor-meadow {
-        height: 165px;
+        height: 180px;
         bottom: -10px;
     }
     .recruitment-inner,
