@@ -1159,7 +1159,7 @@ body.modal-open .scene-object img,
     position: relative;
     color: #fff;
     background-color: #261611;
-    background-image: url('assets/images/tanah.png');
+    background-image: url('assets/images/tanah.webp');
     background-repeat: repeat-x;
     background-position: bottom center;
     background-size: auto 152%;
@@ -1699,7 +1699,7 @@ body.modal-open .scene-object img,
         font-size: clamp(24px, 6.8vw, 32px);
     }
     .paper-plane {
-        top: 23%;
+        top: 28%;
         left: auto;
         right: 9%;
         width: clamp(110px, 30vw, 148px);

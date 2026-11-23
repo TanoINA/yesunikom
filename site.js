@@ -25,7 +25,7 @@ if (stageEl) {
         const w = window.innerWidth;
         const maxPlaneX = w <= 360 ? 10 : w <= 760 ? 18 : Math.min(180, w * 0.14);
         const maxDoveX = w <= 360 ? 8 : w <= 760 ? 14 : Math.min(130, w * 0.1);
-        const maxY = w <= 760 ? 20 : 26;
+        const maxY = w <= 760 ? 14 : 26;
         planeEl.style.transform = `translate3d(${(maxPlaneX * current).toFixed(1)}px, ${(-maxY * current).toFixed(1)}px, 0) rotate(${(10 * current).toFixed(2)}deg)`;
         doveEl.style.transform = `translate3d(${(-maxDoveX * current).toFixed(1)}px, ${(-(maxY - 2) * current).toFixed(1)}px, 0) rotate(${(-6 * current).toFixed(2)}deg)`;
     };

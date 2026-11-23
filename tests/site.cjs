@@ -14,6 +14,7 @@ const mime = {
     '.js': 'text/javascript; charset=utf-8',
     '.png': 'image/png',
     '.jpg': 'image/jpeg',
+    '.webp': 'image/webp',
     '.svg': 'image/svg+xml'
 };
 
@@ -129,8 +130,8 @@ const server = http.createServer((req, res) => {
         await resized.close();
         console.log('PASS story modals, documentation, metadata, and focus restoration');
 
-        // Clouds + Interactive stage overlap checks
-        for (const width of [1440, 390, 320]) {
+        // Clouds + Interactive stage overlap checks (across scroll travel and narrow phones)
+        for (const width of [1440, 390, 360, 320]) {
             const clouds = await browser.newPage({ viewport: { width, height: 844 }, reducedMotion: 'no-preference' });
             clouds.on('pageerror', (error) => errors.push(error.message));
             await clouds.goto(base);
@@ -140,56 +141,71 @@ const server = http.createServer((req, res) => {
             assert.equal(await clouds.locator('#cloud-stage .cloud-cluster:visible').count(), width <= 760 ? 6 : 7, 'Responsive cloud count');
             await clouds.evaluate(() => document.fonts.ready);
 
-            await clouds.locator('#jelajahi').scrollIntoViewIfNeeded();
-            await clouds.waitForTimeout(450);
-            const stageBounds = await clouds.evaluate(() => {
-                const overlap = (a, b) => !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
-                const visualBox = (sel) => {
-                    const el = document.querySelector(sel);
-                    const rects = [el, ...el.querySelectorAll('img, .object-tag')].map((n) => n.getBoundingClientRect());
-                    return {
-                        left: Math.min(...rects.map((r) => r.left)),
-                        top: Math.min(...rects.map((r) => r.top)),
-                        right: Math.max(...rects.map((r) => r.right)),
-                        bottom: Math.max(...rects.map((r) => r.bottom))
+            const stageMetrics = await clouds.evaluate(() => ({
+                top: document.querySelector('.interactive-stage').offsetTop,
+                height: document.querySelector('.interactive-stage').offsetHeight
+            }));
+            for (const frac of [0.5, 0.9, 1.0]) {
+                const scrollY = Math.max(0, Math.round(stageMetrics.top - 844 + (844 + stageMetrics.height) * frac));
+                await clouds.evaluate((y) => window.scrollTo({ top: y, behavior: 'instant' }), scrollY);
+                await clouds.waitForTimeout(350);
+                const stageBounds = await clouds.evaluate(() => {
+                    const overlap = (a, b) => !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
+                    const visualBox = (sel) => {
+                        const el = document.querySelector(sel);
+                        const rects = [el, ...el.querySelectorAll('img, .object-tag')].map((n) => n.getBoundingClientRect());
+                        return {
+                            left: Math.min(...rects.map((r) => r.left)),
+                            top: Math.min(...rects.map((r) => r.top)),
+                            right: Math.max(...rects.map((r) => r.right)),
+                            bottom: Math.max(...rects.map((r) => r.bottom))
+                        };
                     };
-                };
-                const guide = visualBox('.stage-guide');
-                const plane = visualBox('.paper-plane');
-                const dove = visualBox('.dove');
-                const daisy = visualBox('.daisy');
-                return {
-                    planeOverlapsGuide: overlap(guide, plane),
-                    doveOverlapsGuide: overlap(guide, dove),
-                    daisyOverlapsGuide: overlap(guide, daisy),
-                    planeOverlapsDove: overlap(plane, dove),
-                    planeOverlapsDaisy: overlap(plane, daisy),
-                    doveOverlapsDaisy: overlap(dove, daisy),
-                    planeInView: plane.left >= 0 && plane.right <= innerWidth,
-                    doveInView: dove.left >= 0 && dove.right <= innerWidth,
-                    daisyInView: daisy.left >= 0 && daisy.right <= innerWidth
-                };
-            });
-            assert.equal(stageBounds.planeOverlapsGuide, false, `Paper plane clear of guide at ${width}px`);
-            assert.equal(stageBounds.doveOverlapsGuide, false, `Dove clear of guide at ${width}px`);
-            assert.equal(stageBounds.daisyOverlapsGuide, false, `Daisy clear of guide at ${width}px`);
-            assert.equal(stageBounds.planeOverlapsDove, false, `Paper plane clear of dove at ${width}px`);
-            assert.equal(stageBounds.planeOverlapsDaisy, false, `Paper plane clear of daisy at ${width}px`);
-            assert.equal(stageBounds.doveOverlapsDaisy, false, `Dove clear of daisy at ${width}px`);
-            assert.equal(stageBounds.planeInView, true, `Paper plane stays inside viewport at ${width}px`);
-            assert.equal(stageBounds.doveInView, true, `Dove stays inside viewport at ${width}px`);
-            assert.equal(stageBounds.daisyInView, true, `Daisy stays inside viewport at ${width}px`);
+                    const guide = visualBox('.stage-guide');
+                    const plane = visualBox('.paper-plane');
+                    const dove = visualBox('.dove');
+                    const daisy = visualBox('.daisy');
+                    return {
+                        planeOverlapsGuide: overlap(guide, plane),
+                        doveOverlapsGuide: overlap(guide, dove),
+                        daisyOverlapsGuide: overlap(guide, daisy),
+                        planeOverlapsDove: overlap(plane, dove),
+                        planeOverlapsDaisy: overlap(plane, daisy),
+                        doveOverlapsDaisy: overlap(dove, daisy),
+                        planeInView: plane.left >= 0 && plane.right <= innerWidth,
+                        doveInView: dove.left >= 0 && dove.right <= innerWidth,
+                        daisyInView: daisy.left >= 0 && daisy.right <= innerWidth,
+                        planeTransform: document.querySelector('.paper-plane').style.transform
+                    };
+                });
+                assert.match(stageBounds.planeTransform, /^translate3d\(/, `Paper plane moves on scroll at ${width}px (${frac})`);
+                assert.equal(stageBounds.planeOverlapsGuide, false, `Paper plane clear of guide at ${width}px (${frac})`);
+                assert.equal(stageBounds.doveOverlapsGuide, false, `Dove clear of guide at ${width}px (${frac})`);
+                assert.equal(stageBounds.daisyOverlapsGuide, false, `Daisy clear of guide at ${width}px (${frac})`);
+                assert.equal(stageBounds.planeOverlapsDove, false, `Paper plane clear of dove at ${width}px (${frac})`);
+                assert.equal(stageBounds.planeOverlapsDaisy, false, `Paper plane clear of daisy at ${width}px (${frac})`);
+                assert.equal(stageBounds.doveOverlapsDaisy, false, `Dove clear of daisy at ${width}px (${frac})`);
+                assert.equal(stageBounds.planeInView, true, `Paper plane stays inside viewport at ${width}px (${frac})`);
+                assert.equal(stageBounds.doveInView, true, `Dove stays inside viewport at ${width}px (${frac})`);
+                assert.equal(stageBounds.daisyInView, true, `Daisy stays inside viewport at ${width}px (${frac})`);
+            }
 
-            await clouds.locator('.paper-plane').click();
-            await clouds.waitForFunction(() => document.getElementById('storyModal').open);
-            await clouds.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
-            assert.equal(await clouds.locator('.paper-plane img').evaluate((el) => getComputedStyle(el).animationPlayState), 'paused', `Stage animations pause while story modal is open at ${width}px`);
-            const pausedSnapshot = await clouds.evaluate(() => getComputedStyle(document.querySelector('.paper-plane img')).transform);
-            await clouds.waitForTimeout(180);
-            const afterWaitSnapshot = await clouds.evaluate(() => getComputedStyle(document.querySelector('.paper-plane img')).transform);
-            assert.equal(afterWaitSnapshot, pausedSnapshot, `Stage transform stays frozen while story modal is open at ${width}px`);
-            await clouds.keyboard.press('Escape');
-            await clouds.waitForFunction(() => !document.getElementById('storyModal').open);
+            await clouds.locator('#jelajahi').scrollIntoViewIfNeeded();
+            for (const storySel of ['.paper-plane', '.dove', '.daisy']) {
+                await clouds.locator(storySel).click();
+                await clouds.waitForFunction(() => document.getElementById('storyModal').open);
+                assert.equal(await clouds.locator('#storyModal').evaluate((d) => d.scrollWidth <= d.clientWidth), true, `No storyModal horizontal overflow for ${storySel} at ${width}px`);
+                if (storySel === '.paper-plane') {
+                    await clouds.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+                    assert.equal(await clouds.locator('.paper-plane img').evaluate((el) => getComputedStyle(el).animationPlayState), 'paused', `Stage animations pause while story modal is open at ${width}px`);
+                    const pausedSnapshot = await clouds.evaluate(() => getComputedStyle(document.querySelector('.paper-plane img')).transform);
+                    await clouds.waitForTimeout(180);
+                    const afterWaitSnapshot = await clouds.evaluate(() => getComputedStyle(document.querySelector('.paper-plane img')).transform);
+                    assert.equal(afterWaitSnapshot, pausedSnapshot, `Stage transform stays frozen while story modal is open at ${width}px`);
+                }
+                await clouds.keyboard.press('Escape');
+                await clouds.waitForFunction(() => !document.getElementById('storyModal').open);
+            }
             await clouds.close();
         }
         console.log('PASS clouds and interactive stage layout');
@@ -213,6 +229,7 @@ const server = http.createServer((req, res) => {
             assert.equal(await page.locator('.site-header').evaluate((el) => getComputedStyle(el).position), 'sticky', 'Header remains sticky with JS');
             await page.evaluate(() => document.fonts.ready);
             assert(await page.locator('.hero-poster').evaluate((img) => img.complete && img.naturalWidth > 0), 'Hero poster loads');
+            assert(await page.locator('.decor-meadow').evaluate((img) => img.complete && img.naturalWidth > 0), 'Meadow WebP loads');
             assert(await page.evaluate(() => document.documentElement.scrollWidth <= innerWidth), `No horizontal overflow at ${viewport.width}x${viewport.height}`);
 
             if (viewport.width <= 900) {
