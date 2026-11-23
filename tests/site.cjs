@@ -182,10 +182,12 @@ const server = http.createServer((req, res) => {
 
             await clouds.locator('.paper-plane').click();
             await clouds.waitForFunction(() => document.getElementById('storyModal').open);
+            await clouds.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+            assert.equal(await clouds.locator('.paper-plane img').evaluate((el) => getComputedStyle(el).animationPlayState), 'paused', `Stage animations pause while story modal is open at ${width}px`);
             const pausedSnapshot = await clouds.evaluate(() => getComputedStyle(document.querySelector('.paper-plane img')).transform);
             await clouds.waitForTimeout(180);
             const afterWaitSnapshot = await clouds.evaluate(() => getComputedStyle(document.querySelector('.paper-plane img')).transform);
-            assert.equal(afterWaitSnapshot, pausedSnapshot, `Stage animations pause while story modal is open at ${width}px`);
+            assert.equal(afterWaitSnapshot, pausedSnapshot, `Stage transform stays frozen while story modal is open at ${width}px`);
             await clouds.keyboard.press('Escape');
             await clouds.waitForFunction(() => !document.getElementById('storyModal').open);
             await clouds.close();
