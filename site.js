@@ -351,34 +351,31 @@ if (navigation && menuToggle) {
 }
 
 // =========================================
-// 4. CERITA INTERAKTIF (TETAP TAMPIL DI HALAMAN + POPUP MODAL SAAT OBJEK DIKLIK)
+// 4. CERITA INTERAKTIF
 // =========================================
 const storyDialog = document.getElementById('storyModal');
+const storyContent = document.getElementById('storyContent');
 const storyBody = document.getElementById('storyModalBody');
 const storyTitle = document.getElementById('story-title');
+const storyPanels = [...document.querySelectorAll('[data-story-panel]')];
 const storyTitles = { sejarah: 'Where It Began', nilai: 'Our Little World', kegiatan: 'What We Do' };
 let storyOpener;
 
-if (storyDialog && storyBody && storyTitle && typeof storyDialog.showModal === 'function') {
+if (storyDialog && storyContent && storyBody && storyTitle && storyPanels.length === 3 && typeof storyDialog.showModal === 'function') {
+    storyBody.append(...storyPanels);
+    storyContent.hidden = true;
+    storyPanels.forEach((panel) => { panel.hidden = true; });
+
     document.querySelectorAll('[data-story]').forEach((trigger) => {
         trigger.setAttribute('aria-haspopup', 'dialog');
         trigger.setAttribute('aria-controls', 'storyModal');
         trigger.addEventListener('click', (event) => {
             const key = trigger.dataset.story;
-            const sourcePanel = document.querySelector(`[data-story-panel="${key}"]`);
-            if (!storyTitles[key] || !sourcePanel) return;
+            if (!storyTitles[key]) return;
             event.preventDefault();
             storyOpener = trigger;
             closeMenu();
-
-            const clone = sourcePanel.cloneNode(true);
-            if (key === 'nilai') {
-                clone.querySelector('[data-story-panel="sejarah"]')?.remove();
-            }
-            clone.removeAttribute('id');
-            clone.querySelectorAll('[id]').forEach((el) => el.removeAttribute('id'));
-
-            storyBody.replaceChildren(clone);
+            storyPanels.forEach((panel) => { panel.hidden = panel.dataset.storyPanel !== key; });
             storyTitle.textContent = storyTitles[key];
             storyDialog.showModal();
             storyDialog.scrollTop = 0;
@@ -387,7 +384,7 @@ if (storyDialog && storyBody && storyTitle && typeof storyDialog.showModal === '
     });
 
     bindDialogEvents(storyDialog, '[data-close-story]', () => storyOpener, () => {
-        storyBody.replaceChildren();
+        storyPanels.forEach((panel) => { panel.hidden = true; });
     });
 }
 

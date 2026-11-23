@@ -66,18 +66,32 @@ const server = http.createServer((req, res) => {
         assert.equal(imageBuffer.readUInt32BE(16), 1200, 'Share PNG width');
         assert.equal(imageBuffer.readUInt32BE(20), 630, 'Share PNG height');
 
-        // On-page About, History, and Activities sections + Story modals
-        assert.equal(await resized.locator('#tentang').isVisible(), true, 'About section is visible on the main page');
-        assert.equal(await resized.locator('#kegiatan').isVisible(), true, 'Activities section is visible on the main page');
+        // Favicon, QR registration link, and Story modals (pop-up only when JS is active)
+        assert.equal(await resized.locator('#storyContent').isHidden(), true, 'Story content is hidden from scroll flow when JS is active');
         assert.equal(await resized.locator('link[rel="icon"]').getAttribute('href'), 'logo-yes.png', 'Favicon is configured');
         assert.equal(await resized.locator('#joinModal .contact-button').getAttribute('href'), 'https://q.me-qr.com/ecmae54w', 'Direct QR registration link is present');
+
+        await resized.locator('.paper-plane').click();
+        await resized.waitForFunction(() => document.getElementById('storyModal').open);
+        assert.equal(await resized.locator('#story-title').textContent(), 'Where It Began');
         for (const year of ['2007', '2012']) {
-            assert.equal(await resized.locator('main').evaluate((el, value) => el.textContent.split(value).length - 1, year), 1, `${year} appears only once in main content`);
-            assert((await resized.locator('#sejarah').innerText()).includes(year), `${year} remains in history`);
+            assert((await resized.locator('.history').innerText()).includes(year), `${year} remains in history`);
         }
-        assert((await resized.locator('#sejarah').innerText()).includes('4 September'), 'History preserves the founding date');
+        assert((await resized.locator('.history').innerText()).includes('4 September'), 'History preserves the founding date');
+        await resized.mouse.click(2, 2);
+        await resized.waitForFunction(() => !document.getElementById('storyModal').open);
+
+        await resized.locator('.navigation [data-story="nilai"]').click();
+        await resized.waitForFunction(() => document.getElementById('storyModal').open);
+        assert.equal(await resized.locator('#story-title').textContent(), 'Our Little World');
         assert.match(await resized.locator('#tentang').innerText(), /Sanctuary/, 'About section includes the current vision');
-        assert.deepEqual(await resized.locator('#tentang .focus-list h3').allTextContents(), ['English Skills', 'Communication', 'Leadership']);
+        assert.deepEqual(await resized.locator('.focus-list h3').allTextContents(), ['English Skills', 'Communication', 'Leadership']);
+        await resized.locator('[data-close-story]').click();
+        await resized.waitForFunction(() => !document.getElementById('storyModal').open);
+
+        await resized.locator('.navigation [data-story="kegiatan"]').click();
+        await resized.waitForFunction(() => document.getElementById('storyModal').open);
+        assert.equal(await resized.locator('#story-title').textContent(), 'What We Do');
         assert.deepEqual(await resized.locator('#kegiatan .schedule-row h3').allTextContents(), [
             'Forum Group Discussion (FGD)', 'Public Speaking Class', 'Debate Class', 'TOEFL Preparation Class'
         ]);
@@ -85,26 +99,6 @@ const server = http.createServer((req, res) => {
             'Kamis15.30–17.30 WIB', 'Jumat15.30–17.30 WIB', 'BerkalaFlexible Day', 'BerkalaFlexible Day'
         ]);
         assert.deepEqual(await resized.locator('#kegiatan .monthly h4').allTextContents(), ['YES Goes Out', 'Sharing Session']);
-
-        // Story modals when clicking sky stage objects
-        await resized.locator('.paper-plane').click();
-        await resized.waitForFunction(() => document.getElementById('storyModal').open);
-        assert.equal(await resized.locator('#story-title').textContent(), 'Where It Began');
-        assert((await resized.locator('#storyModalBody .history').innerText()).includes('4 September'), 'Modal shows history');
-        await resized.mouse.click(2, 2);
-        await resized.waitForFunction(() => !document.getElementById('storyModal').open);
-
-        await resized.locator('.dove').click();
-        await resized.waitForFunction(() => document.getElementById('storyModal').open);
-        assert.equal(await resized.locator('#story-title').textContent(), 'Our Little World');
-        assert.match(await resized.locator('#storyModalBody').innerText(), /Sanctuary/, 'Modal shows vision');
-        await resized.locator('[data-close-story]').click();
-        await resized.waitForFunction(() => !document.getElementById('storyModal').open);
-
-        await resized.locator('.daisy').click();
-        await resized.waitForFunction(() => document.getElementById('storyModal').open);
-        assert.equal(await resized.locator('#story-title').textContent(), 'What We Do');
-        assert.equal(await resized.locator('#storyModalBody .schedule-row').count(), 4, 'Modal shows schedule rows');
         await resized.keyboard.press('Escape');
         await resized.waitForFunction(() => !document.getElementById('storyModal').open);
 
