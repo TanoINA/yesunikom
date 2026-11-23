@@ -74,6 +74,8 @@ const server = http.createServer((req, res) => {
         await resized.locator('.paper-plane').click();
         await resized.waitForFunction(() => document.getElementById('storyModal').open);
         assert.equal(await resized.locator('#story-title').textContent(), 'Where It Began');
+        assert.equal(await resized.locator('#storyModalKicker').textContent(), 'WHERE IT BEGAN • SEJARAH YES');
+        assert.equal(await resized.locator('#storyModalIcon').getAttribute('src'), 'assets/images/pesawat_kertas.png');
         for (const year of ['2007', '2012']) {
             assert((await resized.locator('.history').innerText()).includes(year), `${year} remains in history`);
         }
@@ -84,6 +86,8 @@ const server = http.createServer((req, res) => {
         await resized.locator('.navigation [data-story="nilai"]').click();
         await resized.waitForFunction(() => document.getElementById('storyModal').open);
         assert.equal(await resized.locator('#story-title').textContent(), 'Our Little World');
+        assert.equal(await resized.locator('#storyModalKicker').textContent(), 'OUR LITTLE WORLD • VISI & 3 PILAR');
+        assert.equal(await resized.locator('#storyModalIcon').getAttribute('src'), 'assets/images/burung_merpati.png');
         assert.match(await resized.locator('#tentang').innerText(), /Sanctuary/, 'About section includes the current vision');
         assert.deepEqual(await resized.locator('.focus-list h3').allTextContents(), ['English Skills', 'Communication', 'Leadership']);
         await resized.locator('[data-close-story]').click();
@@ -92,6 +96,8 @@ const server = http.createServer((req, res) => {
         await resized.locator('.navigation [data-story="kegiatan"]').click();
         await resized.waitForFunction(() => document.getElementById('storyModal').open);
         assert.equal(await resized.locator('#story-title').textContent(), 'What We Do');
+        assert.equal(await resized.locator('#storyModalKicker').textContent(), 'WHAT WE DO • KEGIATAN RUTIN');
+        assert.equal(await resized.locator('#storyModalIcon').getAttribute('src'), 'assets/images/bunga.png');
         assert.deepEqual(await resized.locator('#kegiatan .schedule-row h3').allTextContents(), [
             'Forum Group Discussion (FGD)', 'Public Speaking Class', 'Debate Class', 'TOEFL Preparation Class'
         ]);
@@ -131,7 +137,7 @@ const server = http.createServer((req, res) => {
             assert.equal(await clouds.locator('.hero-sky-bg').count(), 1, 'Hero contains a sky background');
             assert.equal(await clouds.locator('.hero-sky-bg').getAttribute('aria-hidden'), 'true', 'Sky is decorative');
             assert.equal(await clouds.locator('.hero-sky-bg').evaluate((el) => getComputedStyle(el).pointerEvents), 'none', 'Clouds do not intercept clicks');
-            assert.equal(await clouds.locator('#cloud-stage .cloud-cluster').count(), width <= 768 ? 6 : 7, 'Responsive cloud count');
+            assert.equal(await clouds.locator('#cloud-stage .cloud-cluster').count(), width <= 760 ? 6 : 7, 'Responsive cloud count');
             await clouds.evaluate(() => document.fonts.ready);
 
             await clouds.locator('#jelajahi').scrollIntoViewIfNeeded();
@@ -154,6 +160,21 @@ const server = http.createServer((req, res) => {
             assert.equal(stageBounds.planeOverlapsDove, false, `Paper plane clear of dove at ${width}px`);
             assert.equal(stageBounds.planeInView, true, `Paper plane stays inside viewport at ${width}px`);
             assert.equal(stageBounds.doveInView, true, `Dove stays inside viewport at ${width}px`);
+
+            await clouds.locator('.paper-plane').click();
+            await clouds.waitForFunction(() => document.getElementById('storyModal').open);
+            const pausedSnapshot = await clouds.evaluate(() => ({
+                plane: getComputedStyle(document.querySelector('.paper-plane img')).transform,
+                cloud: document.querySelector('#cloud-stage .cloud-cluster').style.transform
+            }));
+            await clouds.waitForTimeout(180);
+            const afterWaitSnapshot = await clouds.evaluate(() => ({
+                plane: getComputedStyle(document.querySelector('.paper-plane img')).transform,
+                cloud: document.querySelector('#cloud-stage .cloud-cluster').style.transform
+            }));
+            assert.deepEqual(afterWaitSnapshot, pausedSnapshot, `Stage animations pause while story modal is open at ${width}px`);
+            await clouds.keyboard.press('Escape');
+            await clouds.waitForFunction(() => !document.getElementById('storyModal').open);
             await clouds.close();
         }
         console.log('PASS clouds and interactive stage layout');

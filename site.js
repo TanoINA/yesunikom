@@ -3,7 +3,8 @@
 document.documentElement.classList.add('js');
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
-const isMobile = window.innerWidth <= 768;
+const isMobile = window.matchMedia('(max-width: 760px)').matches;
+const canHover = window.matchMedia('(hover: hover)').matches;
 let setStageAnimationPaused = () => {};
 
 // =========================================
@@ -181,21 +182,30 @@ let setStageAnimationPaused = () => {};
     let targetPy = 0;
     let rafId = 0;
     let heroVisible = false;
+    let heroW = hero.offsetWidth;
+    let heroH = hero.offsetHeight;
+
+    window.addEventListener('resize', () => {
+        heroW = hero.offsetWidth;
+        heroH = hero.offsetHeight;
+    }, { passive: true });
 
     function paint() {
-        const w = hero.offsetWidth;
-        const h = hero.offsetHeight;
         for (let i = 0; i < clouds.length; i++) {
             const { el, cfg } = clouds[i];
             const depth = cfg.depth || 1;
-            const dx = (cfg.travelX / 100) * w * current + currentPx * 24 * depth;
-            const dy = (cfg.travelY / 100) * h * current + currentPy * 14 * depth;
+            const dx = (cfg.travelX / 100) * heroW * current + currentPx * 24 * depth;
+            const dy = (cfg.travelY / 100) * heroH * current + currentPy * 14 * depth;
             const sc = cfg.scaleStart + (cfg.scaleEnd - cfg.scaleStart) * current;
             el.style.transform = `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) scale(${sc.toFixed(3)})`;
         }
     }
 
     function tick() {
+        if (document.body.classList.contains('modal-open')) {
+            rafId = 0;
+            return;
+        }
         const diff = target - current;
         const diffPx = targetPx - currentPx;
         const diffPy = targetPy - currentPy;
@@ -217,6 +227,8 @@ let setStageAnimationPaused = () => {};
     function onScroll() {
         if (!heroVisible || prefersReducedMotion.matches || document.body.classList.contains('modal-open')) return;
         const rect = hero.getBoundingClientRect();
+        heroW = rect.width;
+        heroH = rect.height;
         target = Math.min(1, Math.max(0, -rect.top / Math.max(1, rect.height)));
         if (!rafId) rafId = requestAnimationFrame(tick);
     }
@@ -251,13 +263,11 @@ let setStageAnimationPaused = () => {};
             heroVisible = entries[0].isIntersecting;
             if (heroVisible) {
                 window.addEventListener('scroll', onScroll, { passive: true });
-                window.addEventListener('pointermove', onPointerMove, { passive: true });
-                window.addEventListener('pointerdown', onPointerMove, { passive: true });
+                if (canHover) window.addEventListener('pointermove', onPointerMove, { passive: true });
                 onScroll();
             } else {
                 window.removeEventListener('scroll', onScroll);
-                window.removeEventListener('pointermove', onPointerMove);
-                window.removeEventListener('pointerdown', onPointerMove);
+                if (canHover) window.removeEventListener('pointermove', onPointerMove);
                 if (rafId) {
                     cancelAnimationFrame(rafId);
                     rafId = 0;
