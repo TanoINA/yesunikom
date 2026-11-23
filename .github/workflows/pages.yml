@@ -23,16 +23,15 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx playwright install --with-deps chromium
-      - run: npm run build
       - run: npm test
         env:
           PLAYWRIGHT_CHANNEL: chromium
       - name: Stage public site files
         run: |
           mkdir _site
-          cp index.html style.css site.js logo-yes.png logo-unikom.png poster-gabung.png share-yes.png _site/
+          cp index.html style.css site.js logo-yes.png logo-unikom.png poster-gabung.jpg share-yes.png _site/
           cp -r assets _site/
-      - uses: actions/upload-pages-artifact@v3
+      - uses: actions/upload-pages-artifact@v4
         with:
           path: _site
 

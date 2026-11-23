@@ -8,7 +8,6 @@
     --sun: #ffd43b;
     --line: #d9e5eb;
     --display: 'Bricolage Grotesque', Arial, sans-serif;
-    --playful: 'Fredoka', 'Bricolage Grotesque', sans-serif;
     --body: 'Source Sans 3', Arial, sans-serif;
 }
 
@@ -1472,7 +1471,7 @@ p {
 
 @media (prefers-reduced-motion: reduce) {
     html {
-        scroll-behavior: auto;
+        scroll-behavior: auto !important;
     }
     *, *::before, *::after {
         animation: none !important;

@@ -162,6 +162,20 @@ const isMobile = window.innerWidth <= 768;
         if (!rafId) rafId = requestAnimationFrame(tick);
     }
 
+    prefersReducedMotion.addEventListener('change', () => {
+        if (prefersReducedMotion.matches) {
+            if (rafId) {
+                cancelAnimationFrame(rafId);
+                rafId = 0;
+            }
+            current = 0;
+            target = 0;
+            paint();
+        } else {
+            onScroll();
+        }
+    });
+
     if ('IntersectionObserver' in window) {
         const observer = new IntersectionObserver((entries) => {
             heroVisible = entries[0].isIntersecting;
@@ -182,43 +196,52 @@ const isMobile = window.innerWidth <= 768;
 })();
 
 // =========================================
-// 2. ANIMASI GSAP OBJEK INTERAKTIF (AUTO-PAUSE SAAT OFF-SCREEN)
+// 2. ANIMASI GSAP OBJEK INTERAKTIF (AUTO-PAUSE SAAT OFF-SCREEN & REDUCED MOTION)
 // =========================================
 (function initInteractiveObjects() {
-    if (prefersReducedMotion.matches || typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
+    if (typeof gsap === 'undefined' || typeof ScrollTrigger === 'undefined') return;
 
     gsap.registerPlugin(ScrollTrigger);
-
-    const idleTweens = [
-        gsap.to('.paper-plane img', {
-            y: -11,
-            rotation: 2,
-            duration: 2.1,
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut'
-        }),
-        gsap.to('.dove img', {
-            y: -13,
-            duration: 2.5,
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut'
-        }),
-        gsap.to('.daisy img', {
-            rotation: 7,
-            transformOrigin: 'bottom center',
-            duration: 1.7,
-            repeat: -1,
-            yoyo: true,
-            ease: 'sine.inOut'
-        })
-    ];
-
-    // Terbang halus saat pengguna scroll melewati panggung interaktif (aman di desktop & mobile)
     const mm = gsap.matchMedia();
 
-    mm.add('(min-width: 761px)', () => {
+    mm.add('(prefers-reduced-motion: no-preference)', () => {
+        const idleTweens = [
+            gsap.to('.paper-plane img', {
+                y: -11,
+                rotation: 2,
+                duration: 2.1,
+                repeat: -1,
+                yoyo: true,
+                ease: 'sine.inOut'
+            }),
+            gsap.to('.dove img', {
+                y: -13,
+                duration: 2.5,
+                repeat: -1,
+                yoyo: true,
+                ease: 'sine.inOut'
+            }),
+            gsap.to('.daisy img', {
+                rotation: 7,
+                transformOrigin: 'bottom center',
+                duration: 1.7,
+                repeat: -1,
+                yoyo: true,
+                ease: 'sine.inOut'
+            })
+        ];
+
+        const stageEl = document.querySelector('.interactive-stage');
+        if (!stageEl || !('IntersectionObserver' in window)) return;
+        const stageObserver = new IntersectionObserver((entries) => {
+            const visible = entries[0].isIntersecting;
+            idleTweens.forEach((tw) => (visible ? tw.play() : tw.pause()));
+        });
+        stageObserver.observe(stageEl);
+        return () => stageObserver.disconnect();
+    });
+
+    mm.add('(min-width: 761px) and (prefers-reduced-motion: no-preference)', () => {
         gsap.to('.paper-plane', {
             x: () => Math.min(180, window.innerWidth * 0.14),
             y: -26,
@@ -248,7 +271,7 @@ const isMobile = window.innerWidth <= 768;
         });
     });
 
-    mm.add('(max-width: 760px)', () => {
+    mm.add('(max-width: 760px) and (prefers-reduced-motion: no-preference)', () => {
         gsap.to('.paper-plane', {
             x: 18,
             y: -14,
@@ -275,16 +298,6 @@ const isMobile = window.innerWidth <= 768;
             }
         });
     });
-
-    // Pause animasi idle ketika pengguna sudah scroll ke bawah membaca artikel
-    const stageEl = document.querySelector('.interactive-stage');
-    if (stageEl && 'IntersectionObserver' in window) {
-        const stageObserver = new IntersectionObserver((entries) => {
-            const visible = entries[0].isIntersecting;
-            idleTweens.forEach((tw) => (visible ? tw.play() : tw.pause()));
-        });
-        stageObserver.observe(stageEl);
-    }
 })();
 
 // =========================================
@@ -310,7 +323,22 @@ function restoreTriggerFocus(opener) {
     opener.focus();
 }
 
-function bindDialogEvents(dialog, closeSelector, getOpener, onAfterClose) {
+function bindDialog(dialog, triggerSelector, closeSelector, onBeforeOpen, onAfterClose) {
+    if (!dialog || typeof dialog.showModal !== 'function') return;
+    let opener;
+    document.querySelectorAll(triggerSelector).forEach((trigger) => {
+        trigger.setAttribute('aria-haspopup', 'dialog');
+        trigger.setAttribute('aria-controls', dialog.id);
+        trigger.addEventListener('click', (event) => {
+            if (onBeforeOpen && onBeforeOpen(trigger) === false) return;
+            event.preventDefault();
+            opener = trigger;
+            closeMenu();
+            dialog.showModal();
+            dialog.scrollTop = 0;
+            document.body.classList.add('modal-open');
+        });
+    });
     dialog.querySelector(closeSelector)?.addEventListener('click', () => dialog.close());
     const isOutsideDialog = (event) => {
         const bounds = dialog.getBoundingClientRect();
@@ -327,7 +355,7 @@ function bindDialogEvents(dialog, closeSelector, getOpener, onAfterClose) {
     dialog.addEventListener('close', () => {
         onAfterClose?.();
         document.body.classList.remove('modal-open');
-        restoreTriggerFocus(getOpener());
+        restoreTriggerFocus(opener);
     });
 }
 
@@ -351,7 +379,7 @@ if (navigation && menuToggle) {
 }
 
 // =========================================
-// 4. CERITA INTERAKTIF
+// 4. CERITA INTERAKTIF & DIALOG PENDAFTARAN
 // =========================================
 const storyDialog = document.getElementById('storyModal');
 const storyContent = document.getElementById('storyContent');
@@ -359,57 +387,30 @@ const storyBody = document.getElementById('storyModalBody');
 const storyTitle = document.getElementById('story-title');
 const storyPanels = [...document.querySelectorAll('[data-story-panel]')];
 const storyTitles = { sejarah: 'Where It Began', nilai: 'Our Little World', kegiatan: 'What We Do' };
-let storyOpener;
 
 if (storyDialog && storyContent && storyBody && storyTitle && storyPanels.length === 3 && typeof storyDialog.showModal === 'function') {
     storyBody.append(...storyPanels);
     storyContent.hidden = true;
     storyPanels.forEach((panel) => { panel.hidden = true; });
 
-    document.querySelectorAll('[data-story]').forEach((trigger) => {
-        trigger.setAttribute('aria-haspopup', 'dialog');
-        trigger.setAttribute('aria-controls', 'storyModal');
-        trigger.addEventListener('click', (event) => {
+    bindDialog(
+        storyDialog,
+        '[data-story]',
+        '[data-close-story]',
+        (trigger) => {
             const key = trigger.dataset.story;
-            if (!storyTitles[key]) return;
-            event.preventDefault();
-            storyOpener = trigger;
-            closeMenu();
+            if (!storyTitles[key]) return false;
             storyPanels.forEach((panel) => { panel.hidden = panel.dataset.storyPanel !== key; });
             storyTitle.textContent = storyTitles[key];
-            storyDialog.showModal();
-            storyDialog.scrollTop = 0;
-            document.body.classList.add('modal-open');
-        });
-    });
-
-    bindDialogEvents(storyDialog, '[data-close-story]', () => storyOpener, () => {
-        storyPanels.forEach((panel) => { panel.hidden = true; });
-    });
+            return true;
+        },
+        () => {
+            storyPanels.forEach((panel) => { panel.hidden = true; });
+        }
+    );
 }
 
-// =========================================
-// 5. DIALOG PENDAFTARAN
-// =========================================
-const joinDialog = document.getElementById('joinModal');
-let joinOpener;
-
-if (joinDialog && typeof joinDialog.showModal === 'function') {
-    document.querySelectorAll('.join-trigger').forEach((trigger) => {
-        trigger.setAttribute('aria-haspopup', 'dialog');
-        trigger.setAttribute('aria-controls', 'joinModal');
-        trigger.addEventListener('click', (event) => {
-            event.preventDefault();
-            joinOpener = trigger;
-            closeMenu();
-            joinDialog.showModal();
-            joinDialog.scrollTop = 0;
-            document.body.classList.add('modal-open');
-        });
-    });
-
-    bindDialogEvents(joinDialog, '[data-close-dialog]', () => joinOpener);
-}
+bindDialog(document.getElementById('joinModal'), '.join-trigger', '[data-close-dialog]');
 
 // =========================================
 // 6. TAHUN DINAMIS, FALLBACK POSTER & FLY UP
@@ -431,6 +432,6 @@ if (modalPoster) {
 const flyUpBtn = document.getElementById('flyUpBtn');
 if (flyUpBtn) {
     flyUpBtn.addEventListener('click', () => {
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+        window.scrollTo({ top: 0, behavior: prefersReducedMotion.matches ? 'auto' : 'smooth' });
     });
 }
