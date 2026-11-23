@@ -83,7 +83,7 @@ const server = http.createServer((req, res) => {
         await resized.mouse.click(2, 2);
         await resized.waitForFunction(() => !document.getElementById('storyModal').open);
 
-        await resized.locator('.navigation [data-story="nilai"]').click();
+        await resized.locator('.dove').click();
         await resized.waitForFunction(() => document.getElementById('storyModal').open);
         assert.equal(await resized.locator('#story-title').textContent(), 'Our Little World');
         assert.equal(await resized.locator('#storyModalKicker').textContent(), 'OUR LITTLE WORLD • VISI & 3 PILAR');
@@ -93,7 +93,7 @@ const server = http.createServer((req, res) => {
         await resized.locator('[data-close-story]').click();
         await resized.waitForFunction(() => !document.getElementById('storyModal').open);
 
-        await resized.locator('.navigation [data-story="kegiatan"]').click();
+        await resized.locator('.daisy').click();
         await resized.waitForFunction(() => document.getElementById('storyModal').open);
         assert.equal(await resized.locator('#story-title').textContent(), 'What We Do');
         assert.equal(await resized.locator('#storyModalKicker').textContent(), 'WHAT WE DO • KEGIATAN RUTIN');
