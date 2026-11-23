@@ -4,6 +4,7 @@ document.documentElement.classList.add('js');
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
 const isMobile = window.innerWidth <= 768;
+let setStageAnimationPaused = () => {};
 
 // =========================================
 // 1. CLOUD ENGINE HEMAT CPU (PRE-BAKED CANVAS + INTERSECTION OBSERVER)
@@ -214,14 +215,14 @@ const isMobile = window.innerWidth <= 768;
     }
 
     function onScroll() {
-        if (!heroVisible || prefersReducedMotion.matches) return;
+        if (!heroVisible || prefersReducedMotion.matches || document.body.classList.contains('modal-open')) return;
         const rect = hero.getBoundingClientRect();
         target = Math.min(1, Math.max(0, -rect.top / Math.max(1, rect.height)));
         if (!rafId) rafId = requestAnimationFrame(tick);
     }
 
     function onPointerMove(event) {
-        if (!heroVisible || prefersReducedMotion.matches) return;
+        if (!heroVisible || prefersReducedMotion.matches || document.body.classList.contains('modal-open')) return;
         targetPx = (event.clientX / Math.max(1, window.innerWidth) - 0.5) * 2;
         targetPy = (event.clientY / Math.max(1, window.innerHeight) - 0.5) * 2;
         if (!rafId) rafId = requestAnimationFrame(tick);
@@ -306,12 +307,25 @@ const isMobile = window.innerWidth <= 768;
 
         const stageEl = document.querySelector('.interactive-stage');
         if (!stageEl || !('IntersectionObserver' in window)) return;
+        let stageVisible = true;
+        let modalPaused = false;
+        const syncPlayState = () => {
+            const shouldPlay = stageVisible && !modalPaused;
+            idleTweens.forEach((tw) => (shouldPlay ? tw.play() : tw.pause()));
+        };
+        setStageAnimationPaused = (paused) => {
+            modalPaused = paused;
+            syncPlayState();
+        };
         const stageObserver = new IntersectionObserver((entries) => {
-            const visible = entries[0].isIntersecting;
-            idleTweens.forEach((tw) => (visible ? tw.play() : tw.pause()));
+            stageVisible = entries[0].isIntersecting;
+            syncPlayState();
         });
         stageObserver.observe(stageEl);
-        return () => stageObserver.disconnect();
+        return () => {
+            stageObserver.disconnect();
+            setStageAnimationPaused = () => {};
+        };
     });
 
     mm.add('(min-width: 761px) and (prefers-reduced-motion: no-preference)', () => {
@@ -407,9 +421,10 @@ function bindDialog(dialog, triggerSelector, closeSelector, onBeforeOpen, onAfte
             event.preventDefault();
             opener = trigger;
             closeMenu();
+            document.body.classList.add('modal-open');
+            setStageAnimationPaused(true);
             dialog.showModal();
             dialog.scrollTop = 0;
-            document.body.classList.add('modal-open');
         });
     });
     dialog.querySelector(closeSelector)?.addEventListener('click', () => dialog.close());
@@ -428,6 +443,7 @@ function bindDialog(dialog, triggerSelector, closeSelector, onBeforeOpen, onAfte
     dialog.addEventListener('close', () => {
         onAfterClose?.();
         document.body.classList.remove('modal-open');
+        setStageAnimationPaused(false);
         restoreTriggerFocus(opener);
     });
 }
@@ -458,8 +474,28 @@ const storyDialog = document.getElementById('storyModal');
 const storyContent = document.getElementById('storyContent');
 const storyBody = document.getElementById('storyModalBody');
 const storyTitle = document.getElementById('story-title');
+const storyIcon = document.getElementById('storyModalIcon');
+const storyKicker = document.getElementById('storyModalKicker');
+const storySub = document.getElementById('storyModalSub');
 const storyPanels = [...document.querySelectorAll('[data-story-panel]')];
 const storyTitles = { sejarah: 'Where It Began', nilai: 'Our Little World', kegiatan: 'What We Do' };
+const storyMeta = {
+    sejarah: {
+        icon: 'assets/images/pesawat_kertas.png',
+        kicker: 'WHERE IT BEGAN • SEJARAH YES',
+        sub: 'Perjalanan komunitas debat bahasa Inggris sejak 2007 hingga menjadi UKM resmi UNIKOM.'
+    },
+    nilai: {
+        icon: 'assets/images/burung_merpati.png',
+        kicker: 'OUR LITTLE WORLD • VISI & 3 PILAR',
+        sub: 'Ruang aman (Sanctuary) untuk bertumbuh dengan semangat kekeluargaan dan nilai PIQIE.'
+    },
+    kegiatan: {
+        icon: 'assets/images/bunga.png',
+        kicker: 'WHAT WE DO • KEGIATAN RUTIN',
+        sub: 'Program mingguan dan bulanan untuk mengasah bahasa Inggris, komunikasi, dan kepemimpinan.'
+    }
+};
 
 if (storyDialog && storyContent && storyBody && storyTitle && storyPanels.length === 3 && typeof storyDialog.showModal === 'function') {
     storyBody.append(...storyPanels);
@@ -475,6 +511,11 @@ if (storyDialog && storyContent && storyBody && storyTitle && storyPanels.length
             if (!storyTitles[key]) return false;
             storyPanels.forEach((panel) => { panel.hidden = panel.dataset.storyPanel !== key; });
             storyTitle.textContent = storyTitles[key];
+            if (storyMeta[key]) {
+                if (storyIcon) storyIcon.src = storyMeta[key].icon;
+                if (storyKicker) storyKicker.textContent = storyMeta[key].kicker;
+                if (storySub) storySub.textContent = storyMeta[key].sub;
+            }
             return true;
         },
         () => {
