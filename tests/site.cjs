@@ -131,7 +131,7 @@ const server = http.createServer((req, res) => {
             assert.equal(await clouds.locator('.hero-sky-bg').count(), 1, 'Hero contains a sky background');
             assert.equal(await clouds.locator('.hero-sky-bg').getAttribute('aria-hidden'), 'true', 'Sky is decorative');
             assert.equal(await clouds.locator('.hero-sky-bg').evaluate((el) => getComputedStyle(el).pointerEvents), 'none', 'Clouds do not intercept clicks');
-            assert.equal(await clouds.locator('#cloud-stage .cloud-cluster').count(), width <= 768 ? 3 : 4, 'Responsive cloud count');
+            assert.equal(await clouds.locator('#cloud-stage .cloud-cluster').count(), width <= 768 ? 4 : 7, 'Responsive cloud count');
             await clouds.evaluate(() => document.fonts.ready);
 
             await clouds.locator('#jelajahi').scrollIntoViewIfNeeded();

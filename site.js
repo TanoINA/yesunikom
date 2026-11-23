@@ -18,9 +18,9 @@ const isMobile = window.innerWidth <= 768;
 
     const cloudConfigs = [
         {
-            width: '44vw', minWidth: 220, maxWidth: 620,
-            baseX: -8, baseY: 8, travelX: 30, travelY: -8,
-            scaleStart: 0.9, scaleEnd: 1.02, opacity: 0.45,
+            width: '44vw', minWidth: 220, maxWidth: 640,
+            baseX: -10, baseY: 6, travelX: 32, travelY: -8, depth: 0.45,
+            scaleStart: 0.9, scaleEnd: 1.02, opacity: 0.5,
             filter: 'url(#cumulus-fluff-mid)', mobileShow: false,
             puffs: [
                 { cx: 30, cy: 58, rx: 22, ry: 14, fill: 'url(#cloud-grad-soft)' },
@@ -29,9 +29,20 @@ const isMobile = window.innerWidth <= 768;
             ]
         },
         {
-            width: '58vw', minWidth: 260, maxWidth: 860,
-            baseX: 16, baseY: 42, travelX: -40, travelY: -18,
-            scaleStart: 0.95, scaleEnd: 1.12, opacity: 0.85,
+            width: '36vw', minWidth: 190, maxWidth: 520,
+            baseX: 60, baseY: 14, travelX: -28, travelY: -10, depth: 0.55,
+            scaleStart: 0.92, scaleEnd: 1.05, opacity: 0.65,
+            filter: 'url(#cumulus-fluff-mid)', mobileShow: false,
+            puffs: [
+                { cx: 36, cy: 56, rx: 22, ry: 13, fill: 'url(#cloud-grad-soft)' },
+                { cx: 54, cy: 46, rx: 24, ry: 17, fill: 'url(#cloud-grad-bright)' },
+                { cx: 70, cy: 55, rx: 19, ry: 13, fill: 'url(#cloud-grad-soft)' }
+            ]
+        },
+        {
+            width: '62vw', minWidth: 260, maxWidth: 940,
+            baseX: 8, baseY: 38, travelX: -42, travelY: -16, depth: 1.0,
+            scaleStart: 0.95, scaleEnd: 1.14, opacity: 0.88,
             filter: 'url(#cumulus-fluff-heavy)', mobileShow: true,
             puffs: [
                 { cx: 50, cy: 62, rx: 38, ry: 18, fill: 'url(#cloud-grad-bright)' },
@@ -40,30 +51,58 @@ const isMobile = window.innerWidth <= 768;
                 { cx: 48, cy: 67, rx: 34, ry: 13, fill: 'url(#cloud-shadow-core)' },
                 { cx: 50, cy: 38, rx: 22, ry: 20, fill: 'url(#cloud-grad-bright)' },
                 { cx: 36, cy: 48, rx: 19, ry: 16, fill: 'url(#cloud-grad-bright)' },
-                { cx: 64, cy: 46, rx: 20, ry: 17, fill: 'url(#cloud-grad-bright)' }
+                { cx: 64, cy: 46, rx: 20, ry: 17, fill: 'url(#cloud-grad-bright)' },
+                { cx: 53, cy: 31, rx: 15, ry: 13, fill: 'url(#cloud-highlight-puff)' }
             ]
         },
         {
-            width: '50vw', minWidth: 220, maxWidth: 740,
-            baseX: 62, baseY: 56, travelX: -52, travelY: -16,
-            scaleStart: 0.92, scaleEnd: 1.08, opacity: 0.78,
+            width: '54vw', minWidth: 230, maxWidth: 800,
+            baseX: 56, baseY: 50, travelX: -54, travelY: -15, depth: 0.85,
+            scaleStart: 0.92, scaleEnd: 1.1, opacity: 0.82,
             filter: 'url(#cumulus-fluff-heavy)', mobileShow: true,
             puffs: [
                 { cx: 48, cy: 60, rx: 34, ry: 16, fill: 'url(#cloud-grad-bright)' },
                 { cx: 30, cy: 62, rx: 18, ry: 12, fill: 'url(#cloud-grad-bright)' },
                 { cx: 68, cy: 61, rx: 19, ry: 13, fill: 'url(#cloud-grad-bright)' },
-                { cx: 46, cy: 43, rx: 20, ry: 16, fill: 'url(#cloud-grad-bright)' }
+                { cx: 46, cy: 43, rx: 20, ry: 16, fill: 'url(#cloud-grad-bright)' },
+                { cx: 58, cy: 46, rx: 18, ry: 15, fill: 'url(#cloud-grad-bright)' },
+                { cx: 48, cy: 36, rx: 14, ry: 12, fill: 'url(#cloud-highlight-puff)' }
             ]
         },
         {
-            width: '48vw', minWidth: 210, maxWidth: 680,
-            baseX: -12, baseY: 66, travelX: 46, travelY: -20,
-            scaleStart: 0.94, scaleEnd: 1.1, opacity: 0.72,
+            width: '52vw', minWidth: 220, maxWidth: 760,
+            baseX: -14, baseY: 62, travelX: 48, travelY: -18, depth: 0.9,
+            scaleStart: 0.94, scaleEnd: 1.12, opacity: 0.78,
             filter: 'url(#cumulus-fluff-mid)', mobileShow: true,
             puffs: [
                 { cx: 34, cy: 55, rx: 22, ry: 14, fill: 'url(#cloud-grad-soft)' },
                 { cx: 54, cy: 50, rx: 25, ry: 16, fill: 'url(#cloud-grad-bright)' },
-                { cx: 72, cy: 58, rx: 19, ry: 12, fill: 'url(#cloud-grad-soft)' }
+                { cx: 72, cy: 58, rx: 19, ry: 12, fill: 'url(#cloud-grad-soft)' },
+                { cx: 52, cy: 63, rx: 28, ry: 11, fill: 'url(#cloud-shadow-core)' }
+            ]
+        },
+        {
+            width: '58vw', minWidth: 240, maxWidth: 880,
+            baseX: 34, baseY: 70, travelX: -36, travelY: -22, depth: 1.2,
+            scaleStart: 0.96, scaleEnd: 1.16, opacity: 0.86,
+            filter: 'url(#cumulus-fluff-heavy)', mobileShow: true,
+            puffs: [
+                { cx: 50, cy: 60, rx: 36, ry: 16, fill: 'url(#cloud-grad-bright)' },
+                { cx: 32, cy: 56, rx: 20, ry: 14, fill: 'url(#cloud-grad-bright)' },
+                { cx: 66, cy: 54, rx: 21, ry: 15, fill: 'url(#cloud-grad-bright)' },
+                { cx: 48, cy: 41, rx: 22, ry: 17, fill: 'url(#cloud-grad-bright)' },
+                { cx: 50, cy: 33, rx: 15, ry: 12, fill: 'url(#cloud-highlight-puff)' }
+            ]
+        },
+        {
+            width: '46vw', minWidth: 220, maxWidth: 700,
+            baseX: 68, baseY: 75, travelX: -62, travelY: -16, depth: 0.75,
+            scaleStart: 0.9, scaleEnd: 1.08, opacity: 0.72,
+            filter: 'url(#cumulus-fluff-mid)', mobileShow: false,
+            puffs: [
+                { cx: 38, cy: 56, rx: 24, ry: 14, fill: 'url(#cloud-grad-soft)' },
+                { cx: 58, cy: 48, rx: 25, ry: 17, fill: 'url(#cloud-grad-bright)' },
+                { cx: 74, cy: 58, rx: 18, ry: 12, fill: 'url(#cloud-grad-soft)' }
             ]
         }
     ];
@@ -127,6 +166,10 @@ const isMobile = window.innerWidth <= 768;
 
     let current = 0;
     let target = 0;
+    let currentPx = 0;
+    let currentPy = 0;
+    let targetPx = 0;
+    let targetPy = 0;
     let rafId = 0;
     let heroVisible = false;
 
@@ -135,8 +178,9 @@ const isMobile = window.innerWidth <= 768;
         const h = hero.offsetHeight;
         for (let i = 0; i < clouds.length; i++) {
             const { el, cfg } = clouds[i];
-            const dx = (cfg.travelX / 100) * w * current;
-            const dy = (cfg.travelY / 100) * h * current;
+            const depth = cfg.depth || 1;
+            const dx = (cfg.travelX / 100) * w * current + currentPx * 24 * depth;
+            const dy = (cfg.travelY / 100) * h * current + currentPy * 14 * depth;
             const sc = cfg.scaleStart + (cfg.scaleEnd - cfg.scaleStart) * current;
             el.style.transform = `translate3d(${dx.toFixed(1)}px, ${dy.toFixed(1)}px, 0) scale(${sc.toFixed(3)})`;
         }
@@ -144,9 +188,15 @@ const isMobile = window.innerWidth <= 768;
 
     function tick() {
         const diff = target - current;
+        const diffPx = targetPx - currentPx;
+        const diffPy = targetPy - currentPy;
         current += diff * 0.1;
-        if (Math.abs(diff) < 0.0008) {
+        currentPx += diffPx * 0.08;
+        currentPy += diffPy * 0.08;
+        if (Math.abs(diff) < 0.0008 && Math.abs(diffPx) < 0.001 && Math.abs(diffPy) < 0.001) {
             current = target;
+            currentPx = targetPx;
+            currentPy = targetPy;
             paint();
             rafId = 0;
             return;
@@ -162,6 +212,13 @@ const isMobile = window.innerWidth <= 768;
         if (!rafId) rafId = requestAnimationFrame(tick);
     }
 
+    function onPointerMove(event) {
+        if (!heroVisible || isMobile || prefersReducedMotion.matches) return;
+        targetPx = (event.clientX / Math.max(1, window.innerWidth) - 0.5) * 2;
+        targetPy = (event.clientY / Math.max(1, window.innerHeight) - 0.5) * 2;
+        if (!rafId) rafId = requestAnimationFrame(tick);
+    }
+
     prefersReducedMotion.addEventListener('change', () => {
         if (prefersReducedMotion.matches) {
             if (rafId) {
@@ -170,6 +227,10 @@ const isMobile = window.innerWidth <= 768;
             }
             current = 0;
             target = 0;
+            currentPx = 0;
+            currentPy = 0;
+            targetPx = 0;
+            targetPy = 0;
             paint();
         } else {
             onScroll();
@@ -181,9 +242,11 @@ const isMobile = window.innerWidth <= 768;
             heroVisible = entries[0].isIntersecting;
             if (heroVisible) {
                 window.addEventListener('scroll', onScroll, { passive: true });
+                window.addEventListener('pointermove', onPointerMove, { passive: true });
                 onScroll();
             } else {
                 window.removeEventListener('scroll', onScroll);
+                window.removeEventListener('pointermove', onPointerMove);
                 if (rafId) {
                     cancelAnimationFrame(rafId);
                     rafId = 0;
