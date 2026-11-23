@@ -1,6 +1,5 @@
 /* YES UNIKOM: Unified Interactive + Informative Styles */
 :root {
-    --paper: #ffffff;
     --sky: #ddf3fb;
     --sea: #086b93;
     --ink: #153648;
@@ -300,18 +299,41 @@ p {
 
 .cloud-cluster {
     position: absolute;
-    aspect-ratio: 1 / 1;
+    aspect-ratio: 1.35 / 1;
     pointer-events: none;
+    transform: translate(-18%, -18%);
 }
 
-.cloud-canvas {
-    position: absolute;
-    top: -35%;
-    left: -35%;
-    width: 170%;
-    height: 170%;
-    display: block;
+.cloud-flip {
+    transform: translate(-18%, -18%) scaleX(-1);
 }
+
+.cloud-bright {
+    background:
+        radial-gradient(ellipse 22% 24% at 53% 31%, rgba(255, 255, 255, 0.98) 0%, rgba(246, 251, 255, 0.8) 52%, transparent 100%),
+        radial-gradient(ellipse 27% 28% at 50% 42%, rgba(255, 255, 255, 0.94) 0%, rgba(240, 248, 255, 0.72) 56%, transparent 100%),
+        radial-gradient(ellipse 24% 24% at 35% 51%, rgba(255, 255, 255, 0.9) 0%, rgba(226, 240, 255, 0.62) 58%, transparent 100%),
+        radial-gradient(ellipse 25% 24% at 65% 50%, rgba(255, 255, 255, 0.9) 0%, rgba(226, 240, 255, 0.62) 58%, transparent 100%),
+        radial-gradient(ellipse 23% 18% at 24% 64%, rgba(245, 250, 255, 0.84) 0%, rgba(196, 220, 246, 0.45) 60%, transparent 100%),
+        radial-gradient(ellipse 24% 19% at 75% 63%, rgba(245, 250, 255, 0.84) 0%, rgba(196, 220, 246, 0.45) 60%, transparent 100%),
+        radial-gradient(ellipse 42% 22% at 50% 63%, rgba(246, 250, 255, 0.9) 0%, rgba(189, 211, 238, 0.52) 64%, transparent 100%);
+}
+
+.cloud-soft {
+    background:
+        radial-gradient(ellipse 26% 24% at 52% 45%, rgba(255, 255, 255, 0.86) 0%, rgba(226, 240, 255, 0.5) 60%, transparent 100%),
+        radial-gradient(ellipse 24% 19% at 33% 56%, rgba(250, 253, 255, 0.78) 0%, rgba(204, 224, 248, 0.4) 62%, transparent 100%),
+        radial-gradient(ellipse 24% 19% at 70% 56%, rgba(250, 253, 255, 0.78) 0%, rgba(204, 224, 248, 0.4) 62%, transparent 100%),
+        radial-gradient(ellipse 34% 17% at 51% 63%, rgba(195, 215, 240, 0.46) 0%, transparent 72%);
+}
+
+.cloud-1 { left: -10%; top: 6%; width: clamp(220px, 44vw, 640px); opacity: 0.5; }
+.cloud-2 { left: 8%; top: 38%; width: clamp(280px, 62vw, 940px); opacity: 0.88; }
+.cloud-3 { left: 56%; top: 50%; width: clamp(260px, 54vw, 800px); opacity: 0.84; }
+.cloud-4 { left: -14%; top: 62%; width: clamp(260px, 52vw, 760px); opacity: 0.82; }
+.cloud-5 { left: 34%; top: 70%; width: clamp(280px, 58vw, 880px); opacity: 0.88; }
+.cloud-6 { left: 68%; top: 75%; width: clamp(250px, 46vw, 700px); opacity: 0.78; }
+.cloud-7 { left: 60%; top: 14%; width: clamp(240px, 36vw, 520px); opacity: 0.74; }
 
 .hero::after {
     content: "";
@@ -573,6 +595,36 @@ p {
     height: auto;
     user-select: none;
     -webkit-user-drag: none;
+}
+
+@keyframes bob-plane {
+    to { transform: translateY(-11px) rotate(2deg); }
+}
+
+@keyframes bob-dove {
+    to { transform: translateY(-13px); }
+}
+
+@keyframes sway-daisy {
+    to { transform: rotate(7deg); }
+}
+
+.paper-plane img {
+    animation: bob-plane 2.1s ease-in-out infinite alternate;
+}
+
+.dove img {
+    animation: bob-dove 2.5s ease-in-out infinite alternate;
+}
+
+.daisy img {
+    transform-origin: bottom center;
+    animation: sway-daisy 1.7s ease-in-out infinite alternate;
+}
+
+body.modal-open .scene-object img,
+.interactive-stage.is-offscreen .scene-object img {
+    animation-play-state: paused;
 }
 
 .object-tag {
@@ -1352,6 +1404,12 @@ p {
     color: var(--muted);
 }
 
+.modal-title {
+    font: 600 14px/1.4 var(--body);
+    letter-spacing: 0;
+    margin: 0;
+}
+
 .close-button {
     display: inline-flex;
     align-items: center;
@@ -1628,24 +1686,33 @@ p {
         font-size: 13px;
         padding: 7px 14px;
     }
+    .cloud-desktop-only {
+        display: none;
+    }
+    .cloud-2 { left: -8%; top: 22%; }
+    .cloud-3 { left: 34%; top: 54%; }
+    .cloud-4 { left: -18%; top: 66%; }
+    .cloud-5 { left: 28%; top: 74%; }
+    .cloud-6 { left: -12%; top: 83%; }
+    .cloud-7 { left: 38%; top: 88%; }
     .stage-title {
         font-size: clamp(24px, 6.8vw, 32px);
     }
     .paper-plane {
-        top: 25%;
+        top: 23%;
         left: auto;
         right: 7%;
         width: clamp(110px, 30vw, 148px);
     }
     .dove {
-        top: 43%;
-        left: 6%;
-        width: clamp(124px, 34vw, 166px);
+        top: 37%;
+        left: 5%;
+        width: clamp(112px, 31vw, 162px);
     }
     .daisy {
-        bottom: 9%;
+        bottom: 6%;
         left: 50%;
-        width: clamp(80px, 22vw, 106px);
+        width: clamp(78px, 21vw, 106px);
     }
     .object-tag {
         padding: 6px 12px 6px 10px;

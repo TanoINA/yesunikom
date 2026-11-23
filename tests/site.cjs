@@ -130,49 +130,62 @@ const server = http.createServer((req, res) => {
         console.log('PASS story modals, documentation, metadata, and focus restoration');
 
         // Clouds + Interactive stage overlap checks
-        for (const width of [1440, 390]) {
+        for (const width of [1440, 390, 320]) {
             const clouds = await browser.newPage({ viewport: { width, height: 844 }, reducedMotion: 'no-preference' });
             clouds.on('pageerror', (error) => errors.push(error.message));
             await clouds.goto(base);
             assert.equal(await clouds.locator('.hero-sky-bg').count(), 1, 'Hero contains a sky background');
             assert.equal(await clouds.locator('.hero-sky-bg').getAttribute('aria-hidden'), 'true', 'Sky is decorative');
             assert.equal(await clouds.locator('.hero-sky-bg').evaluate((el) => getComputedStyle(el).pointerEvents), 'none', 'Clouds do not intercept clicks');
-            assert.equal(await clouds.locator('#cloud-stage .cloud-cluster').count(), width <= 760 ? 6 : 7, 'Responsive cloud count');
+            assert.equal(await clouds.locator('#cloud-stage .cloud-cluster:visible').count(), width <= 760 ? 6 : 7, 'Responsive cloud count');
             await clouds.evaluate(() => document.fonts.ready);
 
             await clouds.locator('#jelajahi').scrollIntoViewIfNeeded();
             await clouds.waitForTimeout(450);
             const stageBounds = await clouds.evaluate(() => {
                 const overlap = (a, b) => !(a.right <= b.left || a.left >= b.right || a.bottom <= b.top || a.top >= b.bottom);
-                const guide = document.querySelector('.stage-guide').getBoundingClientRect();
-                const plane = document.querySelector('.paper-plane').getBoundingClientRect();
-                const dove = document.querySelector('.dove').getBoundingClientRect();
+                const visualBox = (sel) => {
+                    const el = document.querySelector(sel);
+                    const rects = [el, ...el.querySelectorAll('img, .object-tag')].map((n) => n.getBoundingClientRect());
+                    return {
+                        left: Math.min(...rects.map((r) => r.left)),
+                        top: Math.min(...rects.map((r) => r.top)),
+                        right: Math.max(...rects.map((r) => r.right)),
+                        bottom: Math.max(...rects.map((r) => r.bottom))
+                    };
+                };
+                const guide = visualBox('.stage-guide');
+                const plane = visualBox('.paper-plane');
+                const dove = visualBox('.dove');
+                const daisy = visualBox('.daisy');
                 return {
                     planeOverlapsGuide: overlap(guide, plane),
                     doveOverlapsGuide: overlap(guide, dove),
+                    daisyOverlapsGuide: overlap(guide, daisy),
                     planeOverlapsDove: overlap(plane, dove),
+                    planeOverlapsDaisy: overlap(plane, daisy),
+                    doveOverlapsDaisy: overlap(dove, daisy),
                     planeInView: plane.left >= 0 && plane.right <= innerWidth,
-                    doveInView: dove.left >= 0 && dove.right <= innerWidth
+                    doveInView: dove.left >= 0 && dove.right <= innerWidth,
+                    daisyInView: daisy.left >= 0 && daisy.right <= innerWidth
                 };
             });
             assert.equal(stageBounds.planeOverlapsGuide, false, `Paper plane clear of guide at ${width}px`);
             assert.equal(stageBounds.doveOverlapsGuide, false, `Dove clear of guide at ${width}px`);
+            assert.equal(stageBounds.daisyOverlapsGuide, false, `Daisy clear of guide at ${width}px`);
             assert.equal(stageBounds.planeOverlapsDove, false, `Paper plane clear of dove at ${width}px`);
+            assert.equal(stageBounds.planeOverlapsDaisy, false, `Paper plane clear of daisy at ${width}px`);
+            assert.equal(stageBounds.doveOverlapsDaisy, false, `Dove clear of daisy at ${width}px`);
             assert.equal(stageBounds.planeInView, true, `Paper plane stays inside viewport at ${width}px`);
             assert.equal(stageBounds.doveInView, true, `Dove stays inside viewport at ${width}px`);
+            assert.equal(stageBounds.daisyInView, true, `Daisy stays inside viewport at ${width}px`);
 
             await clouds.locator('.paper-plane').click();
             await clouds.waitForFunction(() => document.getElementById('storyModal').open);
-            const pausedSnapshot = await clouds.evaluate(() => ({
-                plane: getComputedStyle(document.querySelector('.paper-plane img')).transform,
-                cloud: document.querySelector('#cloud-stage .cloud-cluster').style.transform
-            }));
+            const pausedSnapshot = await clouds.evaluate(() => getComputedStyle(document.querySelector('.paper-plane img')).transform);
             await clouds.waitForTimeout(180);
-            const afterWaitSnapshot = await clouds.evaluate(() => ({
-                plane: getComputedStyle(document.querySelector('.paper-plane img')).transform,
-                cloud: document.querySelector('#cloud-stage .cloud-cluster').style.transform
-            }));
-            assert.deepEqual(afterWaitSnapshot, pausedSnapshot, `Stage animations pause while story modal is open at ${width}px`);
+            const afterWaitSnapshot = await clouds.evaluate(() => getComputedStyle(document.querySelector('.paper-plane img')).transform);
+            assert.equal(afterWaitSnapshot, pausedSnapshot, `Stage animations pause while story modal is open at ${width}px`);
             await clouds.keyboard.press('Escape');
             await clouds.waitForFunction(() => !document.getElementById('storyModal').open);
             await clouds.close();
@@ -254,12 +267,14 @@ const server = http.createServer((req, res) => {
         const reduced = await browser.newPage({ viewport: { width: 390, height: 844 } });
         await reduced.emulateMedia({ reducedMotion: 'no-preference' });
         await reduced.goto(base);
+        const cloudBefore = await reduced.locator('#cloud-stage .cloud-2').evaluate((el) => getComputedStyle(el).transform);
         await reduced.evaluate(() => window.scrollTo({ top: 300, behavior: 'instant' }));
         await reduced.waitForTimeout(250);
         await reduced.emulateMedia({ reducedMotion: 'reduce' });
         assert.equal(await reduced.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior), 'auto');
-        assert.equal(await reduced.locator('#cloud-stage .cloud-cluster').first().evaluate((el) => el.style.transform), '', 'Sky clouds remain static without parallax transform');
-        assert(['none', 'matrix(1, 0, 0, 1, 0, 0)'].includes(await reduced.locator('.paper-plane img').evaluate((el) => getComputedStyle(el).transform)), 'Live reduced-motion reverts GSAP idle transform');
+        assert.equal(await reduced.locator('#cloud-stage .cloud-2').evaluate((el) => el.style.transform), '', 'Sky clouds have no JS inline parallax transform');
+        assert.equal(await reduced.locator('#cloud-stage .cloud-2').evaluate((el) => getComputedStyle(el).transform), cloudBefore, 'Sky clouds remain static when scrolling');
+        assert.equal(await reduced.locator('.paper-plane img').evaluate((el) => getComputedStyle(el).transform), 'none', 'Live reduced-motion stops CSS idle animation');
         await reduced.close();
         console.log('PASS reduced motion (initial and live toggle)');
 
