@@ -197,6 +197,9 @@ const server = http.createServer((req, res) => {
                 assert.equal(await clouds.locator('#storyModal').evaluate((d) => d.scrollWidth <= d.clientWidth), true, `No storyModal horizontal overflow for ${storySel} at ${width}px`);
                 if (storySel === '.paper-plane') {
                     await clouds.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+                    for (const animSel of ['.paper-plane img', '.dove img', '.daisy img']) {
+                        assert.equal(await clouds.locator(animSel).evaluate((el) => getComputedStyle(el).animationIterationCount), '4', `Idle animation ${animSel} stops after 4 cycles at ${width}px`);
+                    }
                     assert.equal(await clouds.locator('.paper-plane img').evaluate((el) => getComputedStyle(el).animationPlayState), 'paused', `Stage animations pause while story modal is open at ${width}px`);
                     const pausedSnapshot = await clouds.evaluate(() => getComputedStyle(document.querySelector('.paper-plane img')).transform);
                     await clouds.waitForTimeout(180);
@@ -208,6 +211,27 @@ const server = http.createServer((req, res) => {
             }
             await clouds.close();
         }
+
+        // Recompute stage transforms after closing a dialog that resized/rotated across breakpoints
+        const modalResize = await browser.newPage({ viewport: { width: 1280, height: 800 }, reducedMotion: 'no-preference' });
+        modalResize.on('pageerror', (error) => errors.push(error.message));
+        await modalResize.goto(base);
+        await modalResize.locator('#jelajahi').scrollIntoViewIfNeeded();
+        await modalResize.waitForTimeout(150);
+        await modalResize.locator('.paper-plane').click();
+        await modalResize.waitForFunction(() => document.getElementById('storyModal').open);
+        await modalResize.setViewportSize({ width: 390, height: 844 });
+        await modalResize.keyboard.press('Escape');
+        await modalResize.waitForFunction(() => !document.getElementById('storyModal').open);
+        await modalResize.evaluate(() => new Promise((r) => requestAnimationFrame(() => requestAnimationFrame(r))));
+        const postCloseBounds = await modalResize.evaluate(() => ({
+            plane: document.querySelector('.paper-plane').getBoundingClientRect(),
+            dove: document.querySelector('.dove').getBoundingClientRect(),
+            innerW: innerWidth
+        }));
+        assert(postCloseBounds.plane.left >= 0 && postCloseBounds.plane.right <= postCloseBounds.innerW, 'Paper plane stays in view after modal resize + close');
+        assert(postCloseBounds.dove.left >= 0 && postCloseBounds.dove.right <= postCloseBounds.innerW, 'Dove stays in view after modal resize + close');
+        await modalResize.close();
         console.log('PASS clouds and interactive stage layout');
 
         // Multi-viewport layout, assets, menu, and join modal checks

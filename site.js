@@ -3,6 +3,7 @@
 document.documentElement.classList.add('js');
 
 const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)');
+let syncStage = () => {};
 
 // Animasi scroll & jeda off-screen untuk tombol objek interaktif (awan tetap statis)
 const stageEl = document.querySelector('.interactive-stage');
@@ -18,15 +19,7 @@ if (stageEl) {
 
     const updateObjects = () => {
         rafId = 0;
-        if (!planeEl || !doveEl || document.body.classList.contains('modal-open')) return;
-        if (prefersReducedMotion.matches) {
-            if (lastProgress !== -1) {
-                planeEl.style.transform = '';
-                doveEl.style.transform = '';
-                lastProgress = -1;
-            }
-            return;
-        }
+        if (!planeEl || !doveEl || prefersReducedMotion.matches || document.body.classList.contains('modal-open')) return;
         const rect = stageEl.getBoundingClientRect();
         const progress = Math.round(Math.min(1, Math.max(0, (winH - rect.top) / Math.max(1, winH + rect.height))) * 1000) / 1000;
         if (progress === lastProgress) return;
@@ -43,6 +36,7 @@ if (stageEl) {
         if (!stageVisible || prefersReducedMotion.matches || document.body.classList.contains('modal-open')) return;
         if (!rafId) rafId = requestAnimationFrame(updateObjects);
     };
+    syncStage = onStageScroll;
 
     window.addEventListener('resize', () => {
         winW = window.innerWidth;
@@ -138,6 +132,7 @@ function bindDialog(dialog, triggerSelector, closeSelector, onBeforeOpen, onAfte
     dialog.addEventListener('close', () => {
         onAfterClose?.();
         document.body.classList.remove('modal-open');
+        syncStage();
         restoreTriggerFocus(opener);
     });
 }
@@ -172,19 +167,21 @@ const storyIcon = document.getElementById('storyModalIcon');
 const storyKicker = document.getElementById('storyModalKicker');
 const storySub = document.getElementById('storyModalSub');
 const storyPanels = [...document.querySelectorAll('[data-story-panel]')];
-const storyTitles = { sejarah: 'Where It Began', nilai: 'Our Little World', kegiatan: 'What We Do' };
 const storyMeta = {
     sejarah: {
+        title: 'Where It Began',
         icon: 'assets/images/pesawat_kertas.png',
         kicker: 'WHERE IT BEGAN • SEJARAH YES',
         sub: 'Perjalanan komunitas debat bahasa Inggris sejak 2007 hingga menjadi UKM resmi UNIKOM.'
     },
     nilai: {
+        title: 'Our Little World',
         icon: 'assets/images/burung_merpati.png',
         kicker: 'OUR LITTLE WORLD • VISI & 3 PILAR',
         sub: 'Ruang aman (Sanctuary) untuk bertumbuh dengan semangat kekeluargaan dan nilai PIQIE.'
     },
     kegiatan: {
+        title: 'What We Do',
         icon: 'assets/images/bunga.png',
         kicker: 'WHAT WE DO • KEGIATAN RUTIN',
         sub: 'Program mingguan dan bulanan untuk mengasah bahasa Inggris, komunikasi, dan kepemimpinan.'
@@ -202,14 +199,13 @@ if (storyDialog && storyContent && storyBody && storyTitle && storyPanels.length
         '[data-close-story]',
         (trigger) => {
             const key = trigger.dataset.story;
-            if (!storyTitles[key]) return false;
+            const meta = storyMeta[key];
+            if (!meta) return false;
             storyPanels.forEach((panel) => { panel.hidden = panel.dataset.storyPanel !== key; });
-            storyTitle.textContent = storyTitles[key];
-            if (storyMeta[key]) {
-                if (storyIcon) storyIcon.src = storyMeta[key].icon;
-                if (storyKicker) storyKicker.textContent = storyMeta[key].kicker;
-                if (storySub) storySub.textContent = storyMeta[key].sub;
-            }
+            storyTitle.textContent = meta.title;
+            if (storyIcon) storyIcon.src = meta.icon;
+            if (storyKicker) storyKicker.textContent = meta.kicker;
+            if (storySub) storySub.textContent = meta.sub;
             return true;
         },
         () => {
