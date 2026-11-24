@@ -74,6 +74,7 @@ const server = http.createServer((req, res) => {
 
         await resized.locator('.paper-plane').click();
         await resized.waitForFunction(() => document.getElementById('storyModal').open);
+        assert.notEqual(await resized.evaluate(() => getComputedStyle(document.body).overflowY), 'hidden', 'Page scrollbar stays intact while story modal is open');
         assert.equal(await resized.locator('#story-title').textContent(), 'Where It Began');
         assert.equal(await resized.locator('#storyModalKicker').textContent(), 'WHERE IT BEGAN • SEJARAH YES');
         assert.equal(await resized.locator('#storyModalIcon').getAttribute('src'), 'assets/images/pesawat_kertas.png');

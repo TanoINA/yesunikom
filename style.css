@@ -27,10 +27,6 @@ body {
     overflow-x: hidden;
 }
 
-body.modal-open {
-    overflow: hidden;
-}
-
 img {
     display: block;
     max-width: 100%;
