@@ -11,59 +11,58 @@ const doveEl = document.querySelector('.dove');
 
 if (stageEl) {
     let stageVisible = true;
-    let current = 0;
-    let target = 0;
+    let winW = window.innerWidth;
+    let winH = window.innerHeight;
+    let lastProgress = -1;
     let rafId = 0;
 
-    const paintObjects = () => {
-        if (!planeEl || !doveEl) return;
+    const updateObjects = () => {
+        rafId = 0;
+        if (!planeEl || !doveEl || document.body.classList.contains('modal-open')) return;
         if (prefersReducedMotion.matches) {
-            planeEl.style.transform = '';
-            doveEl.style.transform = '';
+            if (lastProgress !== -1) {
+                planeEl.style.transform = '';
+                doveEl.style.transform = '';
+                lastProgress = -1;
+            }
             return;
         }
-        const w = window.innerWidth;
-        const maxPlaneX = w <= 360 ? 10 : w <= 760 ? 18 : Math.min(180, w * 0.14);
-        const maxDoveX = w <= 360 ? 8 : w <= 760 ? 14 : Math.min(130, w * 0.1);
-        const maxY = w <= 760 ? 14 : 26;
-        planeEl.style.transform = `translate3d(${(maxPlaneX * current).toFixed(1)}px, ${(-maxY * current).toFixed(1)}px, 0) rotate(${(10 * current).toFixed(2)}deg)`;
-        doveEl.style.transform = `translate3d(${(-maxDoveX * current).toFixed(1)}px, ${(-(maxY - 2) * current).toFixed(1)}px, 0) rotate(${(-6 * current).toFixed(2)}deg)`;
-    };
+        const rect = stageEl.getBoundingClientRect();
+        const progress = Math.round(Math.min(1, Math.max(0, (winH - rect.top) / Math.max(1, winH + rect.height))) * 1000) / 1000;
+        if (progress === lastProgress) return;
+        lastProgress = progress;
 
-    const tickObjects = () => {
-        if (document.body.classList.contains('modal-open') || prefersReducedMotion.matches) {
-            rafId = 0;
-            return;
-        }
-        const diff = target - current;
-        current += diff * 0.14;
-        if (Math.abs(diff) < 0.001) {
-            current = target;
-            paintObjects();
-            rafId = 0;
-            return;
-        }
-        paintObjects();
-        rafId = requestAnimationFrame(tickObjects);
+        const maxPlaneX = winW <= 360 ? 10 : winW <= 760 ? 18 : Math.min(180, winW * 0.14);
+        const maxDoveX = winW <= 360 ? 8 : winW <= 760 ? 14 : Math.min(130, winW * 0.1);
+        const maxY = winW <= 760 ? 14 : 26;
+        planeEl.style.transform = `translate3d(${(maxPlaneX * progress).toFixed(1)}px, ${(-maxY * progress).toFixed(1)}px, 0) rotate(${(10 * progress).toFixed(2)}deg)`;
+        doveEl.style.transform = `translate3d(${(-maxDoveX * progress).toFixed(1)}px, ${(-(maxY - 2) * progress).toFixed(1)}px, 0) rotate(${(-6 * progress).toFixed(2)}deg)`;
     };
 
     const onStageScroll = () => {
         if (!stageVisible || prefersReducedMotion.matches || document.body.classList.contains('modal-open')) return;
-        const rect = stageEl.getBoundingClientRect();
-        const vh = window.innerHeight;
-        target = Math.min(1, Math.max(0, (vh - rect.top) / Math.max(1, vh + rect.height)));
-        if (!rafId) rafId = requestAnimationFrame(tickObjects);
+        if (!rafId) rafId = requestAnimationFrame(updateObjects);
     };
+
+    window.addEventListener('resize', () => {
+        winW = window.innerWidth;
+        winH = window.innerHeight;
+        lastProgress = -1;
+        onStageScroll();
+    }, { passive: true });
 
     prefersReducedMotion.addEventListener('change', () => {
         if (rafId) {
             cancelAnimationFrame(rafId);
             rafId = 0;
         }
-        current = 0;
-        target = 0;
-        paintObjects();
-        if (!prefersReducedMotion.matches) onStageScroll();
+        if (prefersReducedMotion.matches) {
+            if (planeEl) planeEl.style.transform = '';
+            if (doveEl) doveEl.style.transform = '';
+            lastProgress = -1;
+        } else {
+            onStageScroll();
+        }
     });
 
     if ('IntersectionObserver' in window) {
