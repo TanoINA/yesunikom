@@ -315,6 +315,7 @@ const server = http.createServer((req, res) => {
         await reduced.evaluate(() => window.scrollTo({ top: 300, behavior: 'instant' }));
         await reduced.waitForTimeout(250);
         await reduced.emulateMedia({ reducedMotion: 'reduce' });
+        await reduced.waitForFunction(() => document.querySelector('.paper-plane').style.transform === '');
         assert.equal(await reduced.evaluate(() => getComputedStyle(document.documentElement).scrollBehavior), 'auto');
         assert.equal(await reduced.locator('#cloud-stage .cloud-2').evaluate((el) => el.style.transform), '', 'Sky clouds have no JS inline parallax transform');
         assert.equal(await reduced.locator('#cloud-stage .cloud-2').evaluate((el) => getComputedStyle(el).transform), cloudBefore, 'Sky clouds remain static when scrolling');
